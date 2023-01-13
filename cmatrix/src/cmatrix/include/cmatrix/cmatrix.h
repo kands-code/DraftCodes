@@ -1,7 +1,7 @@
 /// @file: cmatrix/cmatrix.h
 #pragma once
-#ifndef __CMATRIX_H__
-#define __CMATRIX_H__ 1
+#ifndef __CMATRIX_CMATRIX_H__
+#define __CMATRIX_CMATRIX_H__ 1
 
 // -- INCLUDE
 

@@ -46,6 +46,14 @@ The document styles are used only by myself,
 maybe someone think it's bad, whatever.
 
 ```c
+/// @file: exampleDir/example.c
+
+// -- GLOBAL
+
+/// @glob: ExampleGlobalVal
+/// @descript: the example global value
+extern size_t ExampleGlobalVal = 16;
+
 // -- MACRO
 
 /// @macro: __MACRO_EX__

@@ -1,3 +1,3 @@
-/// @file: cta/weapon.c
+/// @file: cta/place.c
 
 #include "cta/option.h"

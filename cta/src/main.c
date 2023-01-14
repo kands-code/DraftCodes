@@ -1,3 +1,4 @@
+#include "cta/game.h"
 #include "cta/option.h"
 #include "cta/utils.h"
 #include <stdio.h>
@@ -19,14 +20,13 @@ static void mainGame();
 static void endGame();
 
 int main(int argc, char *argv[]) {
+  // init basic config
+  initConfigPath();
   parseArgs(argc, argv);
-
+  // load config and launch main loop
   mainGame();
-
+  // some clear process
   endGame();
-
-  puts("Bye!");
-
   exit(EXIT_SUCCESS);
 }
 
@@ -56,8 +56,13 @@ void parseArgs(int argc, char *argv[]) {
 static void mainGame() {
   puts("try load configurations...");
   loadConfigs();
+  // main loop
+  char opt = '\0';
+  while (opt != 'q') {
+    opt = gameChoice();
+  }
 }
 
 /// @func: endGame
 /// >> some clean process to end the game
-static void endGame() {}
+static void endGame() { saveConfigs(); }

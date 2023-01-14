@@ -103,7 +103,7 @@ That's all document styles I use.
 
 #### Build System
 
-I will use bash script the manage the buildin process,
+I will use bash script the manage the build process,
 and I will use CMake, which is very convenient.
 
 ```bash
@@ -122,4 +122,4 @@ Rust document style is same as C but with some markdown syntax.
 
 And Rust has _Cargo_, which is really awesome.
 
-> Naming for Rust, I will follow the Rust conduct :(
+> Naming of Rust, I will follow the Rust conduct :(

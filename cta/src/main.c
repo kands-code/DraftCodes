@@ -15,18 +15,14 @@ static void parseArgs(int argc, char *argv[]);
 /// >> the main process of the game
 static void mainGame();
 
-/// @func: endGame
-/// >> some clean process to end the game
-static void endGame();
-
 int main(int argc, char *argv[]) {
   // init basic config
   initConfigPath();
   parseArgs(argc, argv);
   // load config and launch main loop
   mainGame();
-  // some clear process
-  endGame();
+  // save config
+  saveCharacter(CharacterConfigPath);
   exit(EXIT_SUCCESS);
 }
 
@@ -40,9 +36,15 @@ void parseArgs(int argc, char *argv[]) {
       if (checkPathIsValid(argv[2])) {
         setConfigPath(argv[2]);
       } else {
+        fputs("wrong path for config!\n", stderr);
+        exit(EXIT_FAILURE);
       }
+    } else if (!strcmp("-h", argv[1]) || !strcmp("--help", argv[1])) {
+      commandLineHelper();
+      exit(EXIT_SUCCESS);
     } else {
-      fprintf(stderr, "only support `-c` to determine the config directory\n");
+      fprintf(stderr, "only support `-c` and '-h'/'--help' to determine the "
+                      "config directory\n");
       commandLineHelper();
       exit(EXIT_FAILURE);
     }
@@ -62,7 +64,3 @@ static void mainGame() {
     opt = gameChoice();
   }
 }
-
-/// @func: endGame
-/// >> some clean process to end the game
-static void endGame() { saveConfigs(); }

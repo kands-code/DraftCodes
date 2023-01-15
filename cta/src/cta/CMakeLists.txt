@@ -5,9 +5,7 @@ add_library(${PROJECT_NAME} STATIC
     "character.c"
     "monster.c"
     "place.c"
-    "item.c"
-    "skill.c"
-    "shop.c"
+    "weapon.c"
 )
 
 target_include_directories(${PROJECT_NAME}

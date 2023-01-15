@@ -1,5 +1,6 @@
 /// @file: cta/game.h
 #pragma once
+#include "cta/utils.h"
 #ifndef __CTA_GAME_H__
 #define __CTA_GAME_H__ 1
 
@@ -12,12 +13,15 @@
 
 /// @type: GameState
 /// > character state
-/// @content: {name} the name of the character [ char * ]
-/// @content: {hp} the health point of character [ unsigned char ]
-/// @content: {wp} the weapon the character use [ Weapon * ]
-/// @content: {bag} the bag of the character [ Bag * ]
-/// @content: {buff} the buff the character have [ Buff * ]
-/// @content: {state} the state of the character [ unsigned char ]
+/// @content: {name} the name of the character [ char[] ]
+/// @content: {hp} the health point of character [ size_t ]
+/// @content: {hpBound} the max health point [ size_t ]
+/// @content: {wp} the weapon the character use [ Weapon ]
+/// @content: {bag} the bag of the character [ Bag ]
+/// @content: {buff} the buff the character have [ Buff ]
+/// @content: {coin} the coin the character have [ size_t ]
+/// @content: {step} the step of character in the place [ size_t ]
+/// @content: {state} the state of the character [ size_t ]
 /// @descript:
 ///   * the name will input by user at first time, then will load from config
 ///   * the weapon by default is `punch (0)`, can be modified in config
@@ -29,13 +33,15 @@
 ///     ** 2: the bag mode
 ///     ** 3: the shop mode
 typedef struct GameState {
-  char *name;
-  unsigned char hp;
-  unsigned char sp;
+  char name[MAX_STR_LENGTH];
+  size_t hp;
+  size_t hpBound;
   Weapon wp;
   Bag bag;
   Buff buff;
-  unsigned char state;
+  size_t coin;
+  size_t step;
+  size_t state;
 } GameState;
 
 // -- GLOBAL
@@ -45,12 +51,11 @@ typedef struct GameState {
 extern GameState CharacterState;
 
 /// @glob: GameTime
-/// @descript: the game time [0, 49]
-extern unsigned char GameTime;
-
-/// @glob: GameTimeRange
-/// @descript: the max time
-extern unsigned char GameTimeRange;
+/// @descript: the game time and places
+///   * 0: time
+///   * 1: time range
+///   * 2: place
+extern size_t GameTP[3];
 
 // -- FUNC
 
@@ -65,21 +70,27 @@ extern char gameChoice();
 ///   * when character walk, he/she have some probabilities meet monsters
 ///   * when character walk, he/she also have some probabilities get some buff
 ///   * the buff character get may be good buff, sometimes may be debuff
-///   * the probability can set through config file
 extern void gameWalk();
 
+/// @func: gameTakeRest
+/// >> take a rest
 extern void gameTakeRest();
-
-extern void gameSkill();
 
 /// @func: gameLookUpState
 /// >> look up character state
 extern void gameLookUpState();
 
+/// @func: gameLookUpState
+/// >> look up place state
 extern void gameLookUpPlace();
 
-extern void gameLookUpMonster();
+/// @func: gameLookUpMonster
+/// >> look up the state of the monster
+/// @param: {m} the monster [ Monster * ]
+extern void gameLookUpMonster(Monster *m);
 
+/// @func: gameLookUpBag
+/// >> look up bag
 extern void gameLookUpBag();
 
 extern void gameShop();

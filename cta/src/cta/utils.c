@@ -12,27 +12,12 @@
 #include <string.h>
 #include <sys/stat.h>
 
-// -- GLOBAL
-
-/// @glob: MaxPathLength
-/// @descript: the max length of path
-size_t MaxPathLength = 256;
-
 // -- FUNC
 
 /// @func: initConfigPath
 /// >> initialize the config path variable
 void initConfigPath() {
-  if (NULL == ConfigPath) {
-    ConfigPath = calloc(MaxPathLength, sizeof(char));
-  } else {
-    fputs("the path is already initialized!\n", stderr);
-  }
-
-  if (NULL == DefaultConfigPath) {
-    DefaultConfigPath = calloc(MaxPathLength, sizeof(char));
-    sprintf(DefaultConfigPath, "%s/.config/cta", getenv("HOME"));
-  }
+  sprintf(DefaultConfigPath, "%s/.config/cta", getenv("HOME"));
 }
 
 /// @func: commandLineHelper
@@ -85,7 +70,6 @@ char **readDirItem(const char *dirName, size_t *itemCount) {
   *itemCount = 0;
   size_t size = ConfigFileCount;
   char **items = calloc(size, sizeof(char *));
-
   if (checkPathIsValid(dirName)) {
     DIR *dir = opendir(dirName);
 
@@ -93,7 +77,6 @@ char **readDirItem(const char *dirName, size_t *itemCount) {
       fprintf(stderr, "open dir %s failed!\n", dirName);
       return NULL;
     }
-
     struct dirent *dirEnt;
     while ((dirEnt = readdir(dir)) != NULL) {
       if (strcmp(dirEnt->d_name, "..") && strcmp(dirEnt->d_name, ".")) {
@@ -108,13 +91,11 @@ char **readDirItem(const char *dirName, size_t *itemCount) {
         *itemCount += 1;
       }
     }
-
     closedir(dir);
   } else {
     fprintf(stderr, "%s is an invalid dir name!\n", dirName);
     return NULL;
   }
-
   return items;
 }
 
@@ -134,10 +115,45 @@ _Bool arrayMember(void *elem, size_t size, void **arr, size_t len) {
   return 0;
 }
 
+/// @func: typeRelation
+/// >> test the releation of two types
+/// @param: {type1} the first type [ size_t ]
+/// @param: {type2} the second type [ size_t ]
+/// @return: 0, 1 or -1
+/// @descript:
+///   * if return 0, the two type have no releation
+///   * if return 1, the type1 is strong to type2
+///   * if return -1, the type1 is weak to type2
+int typeRelation(size_t type1, size_t type2) {
+  if (0 == type1 && 1 == type2) {
+    return -1;
+  } else if (0 == type1 && 2 == type2) {
+    return 1;
+  } else if (0 == type1 && 4 == type2) {
+    return -1;
+  } else if (1 == type1 && 0 == type2) {
+    return 1;
+  } else if (1 == type1 && 2 == type2) {
+    return -1;
+  } else if (1 == type1 && 4 == type2) {
+    return -1;
+  } else if (2 == type1 && 0 == type2) {
+    return -1;
+  } else if (2 == type1 && 1 == type2) {
+    return 1;
+  } else if (2 == type1 && 4 == type2) {
+    return -1;
+  } else if (5 == type1 && 4 == type2) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 /// @func: generateDefaultGlobal
 /// >> generate default global config file
 void generateDefaultGlobal() {
-  char *globConf = calloc(MaxPathLength, sizeof(char));
+  char *globConf = calloc(MAX_STR_LENGTH, sizeof(char));
   sprintf(globConf, "%s/glob.gcf", ConfigPath);
   FILE *globConfHandle = fopen(globConf, "ax+");
   if (NULL == globConfHandle) {
@@ -145,9 +161,8 @@ void generateDefaultGlobal() {
     exit(EXIT_FAILURE);
   }
   fputs("[Global]\n", globConfHandle);
-  const size_t ConfigKinds = 6;
-  const char *AllKindOfConfig[6] = {"character", "monster", "place",
-                                    "item",      "skill",   "shop"};
+  const size_t ConfigKinds = 4;
+  const char *AllKindOfConfig[4] = {"character", "monster", "place", "item"};
   for (size_t i = 0; i < ConfigKinds; ++i) {
     fprintf(globConfHandle, "%s = %s.gcf\n", AllKindOfConfig[i],
             AllKindOfConfig[i]);

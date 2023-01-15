@@ -5,52 +5,102 @@
 
 // -- INCLUDE
 
+#include "cta/utils.h"
 #include <stddef.h>
 
 // -- TYPE
 
+/// @type: Place
+/// > the environment
+/// @content: {monsterTypes} number of kinds of monsters [ size_t ]
+/// @content: {monsters} the monsters in this place [ size_t[] ]
+/// @content: {type} the type of the place [ size_t ]
+/// @content: {range} the size of the place [ size_t ]
+/// @descript:
+///   * the `type` is same as the type of monster without
+typedef struct Place {
+  char name[MAX_STR_LENGTH];
+  size_t monsterTypes;
+  size_t monsters[MAX_ITEM_COUNT];
+  size_t type;
+  size_t range;
+} Place;
+
 /// @type: Buff
-/// > the buff
-/// @content: {hp} the percent of change on hp [ float ]
-/// @content: {damage} the percent of change on damage [ float ]
-/// @content: {time} the time the buff will work
+/// > the buff to the character
+/// @content: {hp} make character hp to `hp * (1 + buff.hp)`
+/// @content: {damage} make character damage to `damage * (1 + buff.damage)`
+/// @content: {time} the time the buff continue
 typedef struct Buff {
   float hp;
   float damage;
-  unsigned int time;
+  size_t time;
 } Buff;
 
-/// @type: Place
-/// > the environment
-typedef struct Place {
-  char *name;
-  unsigned char *monsters;
-} Place;
-
-typedef struct Skill {
-  char *name;
-  unsigned char damage;
-  unsigned char sp;
-  Buff buff;
-} Skill;
-
 typedef struct Weapon {
-  char *name;
-  unsigned int damage;
-  unsigned int skill[2];
+  char name[MAX_STR_LENGTH];
+  size_t damage;
+  size_t type;
 } Weapon;
 
-typedef struct Item {
-  char *name;
-
-} Item;
-
+/// @type: Bag
+/// > the character's bag
+/// @content: {itemCount} the number of item types [ size_t ]
+/// @content: {items} all the items [ size_t[] ]
+/// @content: {itemNumber} the number of items [ size_t[] ]
+/// @descript:
+///   * the first item must be poison
 typedef struct Bag {
-  unsigned int itemCount;
-  unsigned int *items;
+  size_t itemCount;
+  size_t items[MAX_ITEM_COUNT];
+  size_t itemNumber[MAX_ITEM_COUNT];
 } Bag;
 
-/// @enum: MonsterType
+/// @type: Monster
+/// > monster
+/// @content: {name} the name of the monster [ char[] ]
+/// @content: {hp} the health point of the monster [ size_t ]
+/// @content: {damage} the damage of the monster [ size_t ]
+/// @content: {coin} the value of the monster [ size_t ]
+/// @content: {type} the type of the monster [ size_t ]
+typedef struct Monster {
+  char name[MAX_STR_LENGTH];
+  size_t hp;
+  size_t damage;
+  size_t coin;
+  size_t type;
+} Monster;
+
+// -- GLOBAL
+
+/// @glob: ConfigPath
+/// @descript: the config path
+extern char ConfigPath[MAX_STR_LENGTH];
+
+/// @glob: DefaultConfigPath
+/// @descript: the default config path
+extern char DefaultConfigPath[MAX_STR_LENGTH];
+
+/// @glob: ConfigFileCount
+/// @descript: the number of config files
+extern const size_t ConfigFileCount;
+
+/// @glob: CharacterConfigPath
+/// @descript: the config path of character
+extern char CharacterConfigPath[MAX_STR_LENGTH];
+
+/// @glob: AllCount
+/// @descript: all count value
+///   * 0: monster
+///   * 1: place
+///   * 2: weapon
+extern size_t AllCount[3];
+
+/// @glob: Monsters
+/// @descript: all kinds of monsters
+extern Monster Monsters[MAX_ITEM_COUNT];
+
+/// @glob: MonsterType
 /// > the type of monster
 /// @item: {FIRE} the fire type
 /// @item: {WATER} the water type
@@ -65,58 +115,15 @@ typedef struct Bag {
 ///   * dark --strong-> light
 ///   * fire, water and grass weak to light
 ///   * common do not weak or strong to any type
-enum MonsterType { FIRE, WATER, GRASS, COMMON, LIGHT, DARK };
-
-typedef struct Monster {
-  char *name;
-
-} Monster;
-
-// -- GLOBAL
-
-/// @glob: ConfigPath
-/// @descript: the config path
-extern char *ConfigPath;
-
-/// @glob: DefaultConfigPath
-/// @descript: the default config path
-extern char *DefaultConfigPath;
-
-/// @glob: ConfigFileCount
-/// @descript: the number of config files
-extern size_t ConfigFileCount;
-
-/// @glob: Buffs
-/// @descript: all kinds of buff
-extern Buff Buffs[];
-
-/// @glob: Skills
-/// @descript: all kinds of buff
-extern Skill Skills[];
-
-/// @glob: Monsters
-/// @descript: all kinds of monsters
-extern Monster Monsters[];
-
-/// @glob: MonsterCount
-/// @descript: the number of the kind of monster
-extern size_t MonsterCount;
-
-/// @glob: CharacterPlace
-/// @descript: the place the character in
-extern unsigned char CharacterPlace;
-
-/// @glob: PlaceCount
-/// @descript: the number of places
-extern unsigned char PlaceCount;
+extern char *MonsterType[MONS_TYPE_COUNT];
 
 /// @glob: Places
 /// @descript: all the places
-extern Place Places[];
+extern Place Places[MAX_ITEM_COUNT];
 
 /// @glob: Weapons
 /// @descript: all the places
-extern Weapon Weapons[];
+extern Weapon Weapons[MAX_ITEM_COUNT];
 
 // -- FUNC
 
@@ -135,11 +142,6 @@ extern _Bool setConfigPath(const char *path);
 ///   * the config file must follow the syntax
 ///   * the program will crash if the config path is invalid
 extern _Bool loadConfigs();
-
-/// @func: loadCharacterConfig
-/// >> load character config
-/// @param: {path} the path of the file
-extern void loadCharacterConfig(const char *path);
 
 /// @func: loadCharacterConfig
 /// >> load character config
@@ -165,11 +167,6 @@ extern void loadItemConfig(const char *path);
 /// >> load shop config
 /// @param: {path} the path of the file
 extern void loadShopConfig(const char *path);
-
-/// @func: saveConfigs
-/// >> save all configs
-/// @return: the result of free [ _Bool ]
-extern _Bool saveConfigs();
 
 /// @func: saveCharacter
 /// >> generate default character config file

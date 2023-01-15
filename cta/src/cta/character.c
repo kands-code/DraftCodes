@@ -48,7 +48,7 @@ void loadCharacterConfig(const char *path) {
         fprintf(stderr, "duplicate character config!\n");
         exit(EXIT_FAILURE);
       } else {
-        char *configTag = calloc(MaxPathLength, sizeof(char));
+        char *configTag = calloc(MAX_STR_LENGTH, sizeof(char));
         sscanf(fileBuffer, "[%[^]\n] ", configTag);
         if (strcmp("Character", configTag)) {
           fprintf(stderr, "wrong content in glob config: %s\n", configTag);
@@ -58,60 +58,72 @@ void loadCharacterConfig(const char *path) {
         free(configTag);
       }
     } else {
-      char *configKey = calloc(MaxPathLength, sizeof(char));
-      char *configVal = calloc(MaxPathLength, sizeof(char));
+      char *configKey = calloc(MAX_STR_LENGTH, sizeof(char));
+      char *configVal = calloc(MAX_STR_LENGTH, sizeof(char));
       sscanf(fileBuffer, "%s = %[^\n]", configKey, configVal);
-
       if (!strcmp("name", configKey)) {
-        size_t len = strlen(configVal);
-        CharacterState.name = calloc(len + 1, sizeof(char));
-        strncpy(CharacterState.name, configVal, len);
-        CharacterState.name[len] = '\0';
+        strncpy(CharacterState.name, configVal, strlen(configVal));
       } else if (!strcmp("hp", configKey)) {
         CharacterState.hp = atoi(configVal);
-      } else if (!strcmp("sp", configKey)) {
-        CharacterState.sp = atoi(configVal);
+      } else if (!strcmp("hpbound", configKey)) {
+        CharacterState.hpBound = atoi(configVal);
       } else if (!strcmp("weapon.name", configKey)) {
-        size_t len = strlen(configVal);
-        CharacterState.wp.name = calloc(len + 1, sizeof(char));
-        strncpy(CharacterState.wp.name, configVal, len);
-        CharacterState.wp.name[len] = '\0';
+        strncpy(CharacterState.wp.name, configVal, strlen(configVal));
       } else if (!strcmp("weapon.damage", configKey)) {
         CharacterState.wp.damage = atoi(configVal);
-      } else if (!strcmp("weapon.skill", configKey)) {
-        sscanf(configVal, "%d %d", &CharacterState.wp.skill[0],
-               &CharacterState.wp.skill[1]);
-      } else if (strcmp("bag.itemcnt", configKey)) {
+      } else if (!strcmp("weapon.type", configKey)) {
+        CharacterState.wp.type = atoi(configVal);
+      } else if (!strcmp("bag.itemcnt", configKey)) {
         CharacterState.bag.itemCount = atoi(configVal);
-      } else if (strcmp("bag.items", configKey)) {
+      } else if (!strcmp("bag.items", configKey)) {
+        char *valTemp = configVal;
         size_t cnt = 0;
-        size_t size = 16;
-        CharacterState.bag.items = calloc(size, sizeof(unsigned char));
         char *elem = calloc(4, sizeof(char));
-        while (sscanf(configVal, "%[^\n ] ", elem) != EOF) {
-          if (size < cnt - 2) {
-            size *= 2;
-            CharacterState.bag.items = reallocarray(
-                CharacterState.bag.items, size, sizeof(unsigned char));
+        while (sscanf(valTemp, "%[^\n ] ", elem) != EOF) {
+          if (cnt > MAX_ITEM_COUNT - 1) {
+            fprintf(stderr, "too many items in bag!\n");
+            exit(EXIT_FAILURE);
           }
           CharacterState.bag.items[cnt++] = atoi(elem);
-          configVal = configVal + strlen(elem) + 1;
+          valTemp = valTemp + strlen(elem) + 1;
         }
         free(elem);
-      } else if (strcmp("buff.hp", configKey)) {
+      } else if (!strcmp("bag.itemnumber", configKey)) {
+        char *valTemp = configVal;
+        size_t cnt = 0; // start from 0
+        char *elem = calloc(4, sizeof(char));
+        while (sscanf(valTemp, "%[^\n ] ", elem) != EOF) {
+          if (cnt > MAX_ITEM_COUNT - 1) {
+            fprintf(stderr, "too many items in bag!\n");
+            exit(EXIT_FAILURE);
+          }
+          CharacterState.bag.itemNumber[cnt++] = atoi(elem);
+          valTemp = valTemp + strlen(elem) + 1;
+        }
+        free(elem);
+      } else if (!strcmp("buff.hp", configKey)) {
         CharacterState.buff.hp = atof(configVal);
-        puts("her");
-      } else if (strcmp("buff.damage", configKey)) {
+      } else if (!strcmp("buff.damage", configKey)) {
         CharacterState.buff.damage = atof(configVal);
-      } else if (strcmp("buff.time", configKey)) {
+      } else if (!strcmp("buff.time", configKey)) {
         CharacterState.buff.time = atoi(configVal);
-      } else if (strcmp("state", configKey)) {
+      } else if (!strcmp("coin", configKey)) {
+        CharacterState.coin = atoi(configVal);
+      } else if (!strcmp("state", configKey)) {
         CharacterState.state = atoi(configVal);
       } else {
         fprintf(stderr, "wrong config key found: %s\n", configKey);
         exit(EXIT_FAILURE);
       }
+      free(configKey);
+      free(configVal);
     }
+  }
+  CharacterState.step = 0;
+  if (0 == CharacterState.hp) {
+    puts("your hp is zero, reborn!\n");
+    CharacterState.hp = CharacterState.hpBound;
+    CharacterState.state = 0;
   }
   free(fileBuffer);
   fclose(fileHandle);
@@ -123,27 +135,29 @@ void loadCharacterConfig(const char *path) {
 void generateDefaultCharacter(const char *path) {
   FILE *fileHandle = fopen(path, "ax+");
   if (NULL == fileHandle) {
-    perror("create glob config file ");
+    perror("create default character config file ");
     exit(EXIT_FAILURE);
   }
   fputs("[Character]\n", fileHandle);
   fputs("name = Hero\n", fileHandle);
   fputs("hp = 23\n", fileHandle);
-  fputs("sp = 11\n", fileHandle);
+  fputs("hpbound = 23\n", fileHandle);
   fputs("weapon.name = punch\n", fileHandle);
   fputs("weapon.damage = 3\n", fileHandle);
-  fputs("weapon.skill = 0 1\n", fileHandle);
+  fputs("weapon.type = 3\n", fileHandle);
   fputs("bag.itemcnt = 1\n", fileHandle);
   fputs("bag.items = 0\n", fileHandle);
+  fputs("bag.itemnumber = 0 1\n", fileHandle);
   fputs("buff.hp = 0\n", fileHandle);
   fputs("buff.damage = 0\n", fileHandle);
   fputs("buff.time = 0\n", fileHandle);
+  fputs("coin = 5\n", fileHandle);
   fputs("state = 0\n", fileHandle);
   fclose(fileHandle);
 }
 
 /// @func: saveCharacter
-/// >> generate default character config file
+/// >> save character config file
 /// @param: {path} the path of the file
 void saveCharacter(const char *path) {
   FILE *fileHandle = fopen(path, "w");
@@ -153,21 +167,25 @@ void saveCharacter(const char *path) {
   }
   fputs("[Character]\n", fileHandle);
   fprintf(fileHandle, "name = %s\n", CharacterState.name);
-  fprintf(fileHandle, "hp = %u\n", CharacterState.hp);
-  fprintf(fileHandle, "sp = %u\n", CharacterState.sp);
+  fprintf(fileHandle, "hp = %zu\n", CharacterState.hp);
+  fprintf(fileHandle, "hpbound = %zu\n", CharacterState.hpBound);
   fprintf(fileHandle, "weapon.name = %s\n", CharacterState.wp.name);
-  fprintf(fileHandle, "weapon.damage = %u\n", CharacterState.wp.damage);
-  fprintf(fileHandle, "weapon.skill = %u %u\n", CharacterState.wp.skill[0],
-          CharacterState.wp.skill[1]);
-  fprintf(fileHandle, "bag.itemcnt = %d\n", CharacterState.bag.itemCount);
+  fprintf(fileHandle, "weapon.damage = %zu\n", CharacterState.wp.damage);
+  fprintf(fileHandle, "weapon.type = %zu\n", CharacterState.wp.type);
+  fprintf(fileHandle, "bag.itemcnt = %zu\n", CharacterState.bag.itemCount);
   fprintf(fileHandle, "bag.items =");
   for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
-    fprintf(fileHandle, " %u", CharacterState.bag.items[i]);
+    fprintf(fileHandle, " %zu", CharacterState.bag.items[i]);
   }
   fprintf(fileHandle, "\n");
-  fprintf(fileHandle, "buff.hp = %f\n", CharacterState.buff.hp);
-  fprintf(fileHandle, "buff.damage = %f\n", CharacterState.buff.damage);
-  fprintf(fileHandle, "buff.time = %u\n", CharacterState.buff.time);
-  fprintf(fileHandle, "state = %u\n", CharacterState.state);
+  fprintf(fileHandle, "bag.itemnumber =");
+  for (size_t i = 0; i < CharacterState.bag.itemCount + 1; ++i) {
+    fprintf(fileHandle, " %zu", CharacterState.bag.itemNumber[i]);
+  }
+  fprintf(fileHandle, "\n");
+  fprintf(fileHandle, "buff.hp = %.3f\n", CharacterState.buff.hp);
+  fprintf(fileHandle, "buff.damage = %.3f\n", CharacterState.buff.damage);
+  fprintf(fileHandle, "buff.hp = %zu\n", CharacterState.buff.time);
+  fprintf(fileHandle, "state = %zu\n", CharacterState.state);
   fclose(fileHandle);
 }

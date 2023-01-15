@@ -7,11 +7,19 @@
 
 #include <stddef.h>
 
-// -- GLOBAL
+// -- MACRO
 
-/// @glob: MaxPathLength
-/// @descript: the max length of path
-extern size_t MaxPathLength;
+/// @macro: MAX_STR_LENGTH
+/// @descript: the max length of string
+#define MAX_STR_LENGTH 128
+
+/// @macro: MAX_ITEM_COUNT
+/// @descript: the max number of items, include monsters
+#define MAX_ITEM_COUNT 32
+
+/// @macro: MONS_TYPE_COUNT
+/// @descript: the number of the type kind of monster
+#define MONS_TYPE_COUNT 6
 
 // -- FUNC
 
@@ -49,6 +57,17 @@ extern char **readDirItem(const char *dirName, size_t *itemCount);
 /// @return: the result of the test [ _Bool ]
 extern _Bool arrayMember(void *elem, size_t size, void **arr, size_t len);
 
+/// @func: typeRelation
+/// >> test the releation of two types
+/// @param: {type1} the first type [ size_t ]
+/// @param: {type2} the second type [ size_t ]
+/// @return: 0, 1 or -1
+/// @descript:
+///   * if return 0, the two type have no releation
+///   * if return 1, the type1 is strong to type2
+///   * if return -1, the type1 is weak to type2
+extern int typeRelation(size_t type1, size_t type2);
+
 /// @func: generateDefaultGlobal
 /// >> generate default global config file
 extern void generateDefaultGlobal();
@@ -63,20 +82,15 @@ extern void generateDefaultCharacter(const char *path);
 /// @param: {path} the path of the file
 extern void generateDefaultMonster(const char *path);
 
-/// @func: generateDefaultItem
-/// >> generate default ite, config file
-/// @param: {path} the path of the file
-extern void generateDefaultItem(const char *path);
-
 /// @func: generateDefaultPlace
 /// >> generate default place config file
 /// @param: {path} the path of the file
 extern void generateDefaultPlace(const char *path);
 
-/// @func: generateDefaultSkill
-/// >> generate default skill config file
+/// @func: generateDefaultItem
+/// >> generate default ite, config file
 /// @param: {path} the path of the file
-extern void generateDefaultSkill(const char *path);
+extern void generateDefaultItem(const char *path);
 
 /// @func: generateDefaultShop
 /// >> generate default shop config file

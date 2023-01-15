@@ -176,6 +176,7 @@ char gameChoice() {
             CharacterState.hp += heal;
           }
           // adjust state
+          CharacterState.bag.itemNumber[0] -= 1;
           GameTP[0] += 1;
           if (CharacterState.buff.time > 0) {
             CharacterState.buff.time -= 1;

@@ -1,6 +1,6 @@
 # CTA
 
-The Textual Advantual Game written by C.
+The Textual Advantual Game written in C.
 
 ## Basic Element
 

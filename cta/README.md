@@ -1,6 +1,6 @@
 # CTA
 
-The Textual Advantual Game written in C.
+The Textual Adventual Game written in C.
 
 ## Basic Element
 

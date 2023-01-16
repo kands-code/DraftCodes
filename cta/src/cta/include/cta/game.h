@@ -64,7 +64,7 @@ extern size_t GameTP[3];
 
 /// @glob: ShopItems
 /// @descript: the items in the shop
-extern Product ShopItems[6];
+extern Product ShopItems[MONS_TYPE_COUNT];
 
 // -- FUNC
 

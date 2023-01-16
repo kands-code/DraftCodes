@@ -407,8 +407,8 @@ char gameChoice() {
               CharacterState.bag.items[CharacterState.bag.itemCount++] =
                   ShopItems[pId - 2].wp;
             }
+            CharacterState.coin -= ShopItems[pId - 2].coin;
           }
-          CharacterState.coin -= ShopItems[pId - 2].coin;
         }
       }
     ENDSHOP:
@@ -417,13 +417,26 @@ char gameChoice() {
       puts("");
       srand(time(NULL));
       // init item price
-      size_t *priceL = calloc(CharacterState.bag.itemCount, sizeof(size_t));
+      size_t soldable = 0;
       for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+        if (CharacterState.bag.items[i] != 0 &&
+            CharacterState.bag.items[i] != CharacterState.wp) {
+          soldable++;
+        }
+      }
+      size_t *soldableItems = calloc(soldable, sizeof(size_t));
+      size_t *priceL = calloc(soldable, sizeof(size_t));
+      for (size_t i = 0; i < soldable; ++i) {
         priceL[i] = rand() % 30 + 3;
       }
-      for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
-        printf("%s (%zu): %zu\n", Weapons[CharacterState.bag.items[i]].name, i,
-               priceL[i]);
+      for (size_t i = 0, cnt = 0;
+           cnt < soldable && i < CharacterState.bag.itemCount; ++i) {
+        if (CharacterState.bag.items[i] != 0 &&
+            CharacterState.bag.items[i] != CharacterState.wp) {
+          printf("%s (%zu): %zu\n", Weapons[CharacterState.bag.items[i]].name,
+                 cnt, priceL[cnt]);
+          soldableItems[cnt++] = i;
+        }
       }
       puts("");
       size_t wId = 0;
@@ -432,13 +445,15 @@ char gameChoice() {
       scanf("%zu", &wId);
       while (getchar() != '\n')
         ;
-      if (wId > CharacterState.bag.itemCount - 1) {
+      if (wId + 1 > soldable) {
         puts("invalid item id!");
       } else {
-        printf("you sold %s\n", Weapons[CharacterState.bag.items[wId]].name);
+        printf("you sold %s\n",
+               Weapons[CharacterState.bag.items[soldableItems[wId]]].name);
         // move
         CharacterState.bag.itemCount -= 1;
-        for (size_t i = wId; i < CharacterState.bag.itemCount; ++i) {
+        for (size_t i = soldableItems[wId]; i < CharacterState.bag.itemCount;
+             ++i) {
           CharacterState.bag.items[i] = CharacterState.bag.items[i + 1];
         }
         CharacterState.coin += priceL[wId];
@@ -653,7 +668,7 @@ void gameShop() {
   srand(time(NULL));
   // init store
   for (size_t i = 0; i < MONS_TYPE_COUNT; ++i) {
-    size_t wp = rand() % AllCount[2];
+    size_t wp = rand() % (AllCount[2] - 1) + 1; // can't be punch
     size_t coin = rand() % 50 + Weapons[wp].damage / 2;
     ShopItems[i].coin = coin;
     ShopItems[i].wp = wp;

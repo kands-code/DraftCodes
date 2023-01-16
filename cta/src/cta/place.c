@@ -70,7 +70,7 @@ void loadPlaceConfig(const char *path) {
         char *elem = calloc(4, sizeof(char));
         while (sscanf(valTemp, "%[^\n ] ", elem) != EOF) {
           if (cnt > MAX_ITEM_COUNT - 1) {
-            fprintf(stderr, "too many items in bag!\n");
+            fprintf(stderr, "too many monsters in this place!\n");
             exit(EXIT_FAILURE);
           }
           Places[placesCount].monsters[cnt++] = atoi(elem);

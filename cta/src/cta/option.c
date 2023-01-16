@@ -162,7 +162,7 @@ _Bool loadConfigs() {
           loadMonsterConfig(filePath);
         } else if (!strcmp("place", configKey)) {
           loadPlaceConfig(filePath);
-        } else if (!strcmp("item", configKey)) {
+        } else if (!strcmp("weapon", configKey)) {
           loadItemConfig(filePath);
         } else if (!strcmp("shop", configKey)) {
         } else {

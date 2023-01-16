@@ -97,4 +97,9 @@ extern void generateDefaultItem(const char *path);
 /// @param: {path} the path of the file
 extern void generateDefaultShop(const char *path);
 
+/// @func: bputs
+/// >> puts sentence inside two blank line
+/// @param: {s} the sentence
+extern void bputs(const char *s);
+
 #endif

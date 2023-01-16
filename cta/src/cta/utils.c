@@ -162,11 +162,20 @@ void generateDefaultGlobal() {
   }
   fputs("[Global]\n", globConfHandle);
   const size_t ConfigKinds = 4;
-  const char *AllKindOfConfig[4] = {"character", "monster", "place", "item"};
+  const char *AllKindOfConfig[4] = {"character", "monster", "place", "weapon"};
   for (size_t i = 0; i < ConfigKinds; ++i) {
     fprintf(globConfHandle, "%s = %s.gcf\n", AllKindOfConfig[i],
             AllKindOfConfig[i]);
   }
   fclose(globConfHandle);
   free(globConf);
+}
+
+/// @func: bputs
+/// >> puts sentence inside two blank line
+/// @param: {s} the sentence
+void bputs(const char *s) {
+  puts("");
+  puts(s);
+  puts("");
 }

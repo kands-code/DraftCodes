@@ -67,12 +67,8 @@ void loadCharacterConfig(const char *path) {
         CharacterState.hp = atoi(configVal);
       } else if (!strcmp("hpbound", configKey)) {
         CharacterState.hpBound = atoi(configVal);
-      } else if (!strcmp("weapon.name", configKey)) {
-        strncpy(CharacterState.wp.name, configVal, strlen(configVal));
-      } else if (!strcmp("weapon.damage", configKey)) {
-        CharacterState.wp.damage = atoi(configVal);
-      } else if (!strcmp("weapon.type", configKey)) {
-        CharacterState.wp.type = atoi(configVal);
+      } else if (!strcmp("weapon", configKey)) {
+        CharacterState.wp = atoi(configVal);
       } else if (!strcmp("bag.itemcnt", configKey)) {
         CharacterState.bag.itemCount = atoi(configVal);
       } else if (!strcmp("bag.items", configKey)) {
@@ -87,20 +83,11 @@ void loadCharacterConfig(const char *path) {
           CharacterState.bag.items[cnt++] = atoi(elem);
           valTemp = valTemp + strlen(elem) + 1;
         }
+        // modify count
+        CharacterState.bag.itemCount = cnt;
         free(elem);
-      } else if (!strcmp("bag.itemnumber", configKey)) {
-        char *valTemp = configVal;
-        size_t cnt = 0; // start from 0
-        char *elem = calloc(4, sizeof(char));
-        while (sscanf(valTemp, "%[^\n ] ", elem) != EOF) {
-          if (cnt > MAX_ITEM_COUNT - 1) {
-            fprintf(stderr, "too many items in bag!\n");
-            exit(EXIT_FAILURE);
-          }
-          CharacterState.bag.itemNumber[cnt++] = atoi(elem);
-          valTemp = valTemp + strlen(elem) + 1;
-        }
-        free(elem);
+      } else if (!strcmp("bag.poisonnumber", configKey)) {
+        CharacterState.bag.poisonNumber = atoi(configVal);
       } else if (!strcmp("buff.hp", configKey)) {
         CharacterState.buff.hp = atof(configVal);
       } else if (!strcmp("buff.damage", configKey)) {
@@ -142,12 +129,10 @@ void generateDefaultCharacter(const char *path) {
   fputs("name = Hero\n", fileHandle);
   fputs("hp = 23\n", fileHandle);
   fputs("hpbound = 23\n", fileHandle);
-  fputs("weapon.name = punch\n", fileHandle);
-  fputs("weapon.damage = 3\n", fileHandle);
-  fputs("weapon.type = 3\n", fileHandle);
+  fputs("weapon = 0\n", fileHandle);
   fputs("bag.itemcnt = 1\n", fileHandle);
   fputs("bag.items = 0\n", fileHandle);
-  fputs("bag.itemnumber = 0 1\n", fileHandle);
+  fputs("bag.poisonnumber = 0\n", fileHandle);
   fputs("buff.hp = 0\n", fileHandle);
   fputs("buff.damage = 0\n", fileHandle);
   fputs("buff.time = 0\n", fileHandle);
@@ -169,23 +154,20 @@ void saveCharacter(const char *path) {
   fprintf(fileHandle, "name = %s\n", CharacterState.name);
   fprintf(fileHandle, "hp = %zu\n", CharacterState.hp);
   fprintf(fileHandle, "hpbound = %zu\n", CharacterState.hpBound);
-  fprintf(fileHandle, "weapon.name = %s\n", CharacterState.wp.name);
-  fprintf(fileHandle, "weapon.damage = %zu\n", CharacterState.wp.damage);
-  fprintf(fileHandle, "weapon.type = %zu\n", CharacterState.wp.type);
+  fprintf(fileHandle, "weapon = %zu\n", CharacterState.wp);
   fprintf(fileHandle, "bag.itemcnt = %zu\n", CharacterState.bag.itemCount);
   fprintf(fileHandle, "bag.items =");
   for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
     fprintf(fileHandle, " %zu", CharacterState.bag.items[i]);
   }
   fprintf(fileHandle, "\n");
-  fprintf(fileHandle, "bag.itemnumber =");
-  for (size_t i = 0; i < CharacterState.bag.itemCount + 1; ++i) {
-    fprintf(fileHandle, " %zu", CharacterState.bag.itemNumber[i]);
-  }
+  fprintf(fileHandle, "bag.poisonnumber =");
+  fprintf(fileHandle, " %zu", CharacterState.bag.poisonNumber);
   fprintf(fileHandle, "\n");
   fprintf(fileHandle, "buff.hp = %.3f\n", CharacterState.buff.hp);
   fprintf(fileHandle, "buff.damage = %.3f\n", CharacterState.buff.damage);
   fprintf(fileHandle, "buff.hp = %zu\n", CharacterState.buff.time);
-  fprintf(fileHandle, "state = %zu\n", CharacterState.state);
+  fprintf(fileHandle, "coin = %zu\n", CharacterState.coin);
+  fputs("state = 0\n", fileHandle);
   fclose(fileHandle);
 }

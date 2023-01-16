@@ -16,7 +16,7 @@
 /// @content: {name} the name of the character [ char[] ]
 /// @content: {hp} the health point of character [ size_t ]
 /// @content: {hpBound} the max health point [ size_t ]
-/// @content: {wp} the weapon the character use [ Weapon ]
+/// @content: {wp} the weapon the character use [ size_t ]
 /// @content: {bag} the bag of the character [ Bag ]
 /// @content: {buff} the buff the character have [ Buff ]
 /// @content: {coin} the coin the character have [ size_t ]
@@ -36,7 +36,7 @@ typedef struct GameState {
   char name[MAX_STR_LENGTH];
   size_t hp;
   size_t hpBound;
-  Weapon wp;
+  size_t wp;
   Bag bag;
   Buff buff;
   size_t coin;
@@ -44,18 +44,27 @@ typedef struct GameState {
   size_t state;
 } GameState;
 
+typedef struct Product {
+  size_t wp;
+  size_t coin;
+} Product;
+
 // -- GLOBAL
 
 /// @glob: CharacterState
 /// @descript: the state of the character
 extern GameState CharacterState;
 
-/// @glob: GameTime
+/// @glob: GameTP
 /// @descript: the game time and places
 ///   * 0: time
 ///   * 1: time range
 ///   * 2: place
 extern size_t GameTP[3];
+
+/// @glob: ShopItems
+/// @descript: the items in the shop
+extern Product ShopItems[6];
 
 // -- FUNC
 
@@ -93,6 +102,8 @@ extern void gameLookUpMonster(Monster *m);
 /// >> look up bag
 extern void gameLookUpBag();
 
+/// @func: gameShop
+/// >> buy some weapon or hpBounds
 extern void gameShop();
 
 /// @func: gameConfig

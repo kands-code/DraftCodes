@@ -17,12 +17,16 @@
 /// @descript: the state of the character
 GameState CharacterState = {0};
 
-/// @glob: GameTime
+/// @glob: GameTP
 /// @descript: the game time and places
 ///   * 0: time
 ///   * 1: time range
 ///   * 2: place
 size_t GameTP[3] = {};
+
+/// @glob: ShopItems
+/// @descript: the items in the shop
+Product ShopItems[MONS_TYPE_COUNT] = {};
 
 // -- FUNC
 
@@ -50,6 +54,7 @@ static void fightHelper() {
   puts("'s' to get infomation about character state");
   puts("'p' to get infomation about place");
   puts("'m' to look up the state of monster");
+  puts("'r' to run away");
   puts("'d' to drink poinson");
   puts("'h' or '?' to print this message");
   puts("");
@@ -61,9 +66,53 @@ static void bagHelper() {
   puts("");
   puts("'d' to drink poinson");
   puts("'s' to get infomation about character state");
+  puts("'l' to list bag items");
   puts("'c' to change the weapon");
   puts("'b' back to the normal mode");
   puts("'h' or '?' to print this message");
+  puts("");
+}
+
+/// @func: shopHelper {PRIVATE}
+/// >> print help info on shop mode
+static void shopHelper() {
+  puts("");
+  puts("'l' to list all items");
+  puts("'b' to buy items");
+  puts("'s' to sold weapon");
+  puts("'i' to check item info");
+  puts("'n' back to the normal mode");
+  puts("'h' or '?' to print this message");
+  puts("");
+}
+
+/// @func: drinkPoison
+/// >> drink posion
+static void drinkPoison() {
+  puts("");
+  if (CharacterState.bag.poisonNumber > 0) {
+    srand(time(NULL));
+    size_t heal = CharacterState.hpBound * (rand() % 37 + 31) * 0.01;
+    puts("drink poison...");
+    if (CharacterState.hp + heal > CharacterState.hpBound) {
+      CharacterState.hp = CharacterState.hpBound;
+    } else {
+      printf("? %zu\n", CharacterState.state);
+      CharacterState.hp += heal;
+    }
+    // adjust state
+    CharacterState.bag.poisonNumber -= 1;
+    GameTP[0] += 1;
+    if (CharacterState.buff.time > 0) {
+      CharacterState.buff.time -= 1;
+    }
+    if (0 == CharacterState.buff.time) {
+      CharacterState.buff.hp = 0;
+      CharacterState.buff.damage = 0;
+    }
+  } else {
+    puts("do not have poison...");
+  }
   puts("");
 }
 
@@ -73,13 +122,11 @@ static void bagHelper() {
 char gameChoice() {
   char opt;
   if (0 == CharacterState.state) {
-    printf("what do you want to do? ");
+    printf("N> what do you want to do? ");
     opt = getchar();
     while (getchar() != '\n')
       ;
-    if ('h' == opt || '?' == opt) {
-      normalHelper();
-    } else if ('s' == opt) {
+    if ('s' == opt) {
       gameLookUpState();
     } else if ('c' == opt) {
       gameConfig();
@@ -89,6 +136,8 @@ char gameChoice() {
       gameWalk();
     } else if ('r' == opt) {
       gameTakeRest();
+    } else if ('$' == opt) {
+      gameShop();
     } else if ('b' == opt) {
       gameLookUpBag();
     } else if ('q' == opt) {
@@ -116,11 +165,11 @@ char gameChoice() {
       while (getchar() != '\n')
         ;
       if ('a' == opt) {
-        int damage =
-            CharacterState.wp.damage * (1 + CharacterState.buff.damage);
+        int damage = Weapons[CharacterState.wp].damage *
+                     (1 + CharacterState.buff.damage);
         size_t miss = rand() % 100; // >= 80 will miss the attack
         if (miss < 90) {
-          int relat = typeRelation(CharacterState.wp.type, m.type);
+          int relat = typeRelation(Weapons[CharacterState.wp].type, m.type);
           if (-1 == relat) {
             damage *= 0.7;
           } else if (1 == relat) {
@@ -128,11 +177,16 @@ char gameChoice() {
           }
           if (m.hp > damage) {
             m.hp -= damage;
+            puts("");
+            printf("monster (%s) hp: %zu\n", m.name, m.hp);
+            puts("");
           } else {
             m.hp = 0;
           }
         } else {
+          puts("");
           printf("the monster (%s) missed the attack\n", m.name);
+          puts("");
         }
         if (m.hp > 0) {
           miss = rand() % 100;
@@ -140,13 +194,16 @@ char gameChoice() {
             size_t monsterDamage = m.damage / (1 + CharacterState.buff.hp);
             if (CharacterState.hp > monsterDamage) {
               CharacterState.hp -= monsterDamage;
+              puts("");
+              printf("you hp: %zu\n", CharacterState.hp);
+              puts("");
             } else {
               CharacterState.hp = 0;
-              puts("you lost the game!");
+              bputs("you lost the game!");
               return 'q';
             }
           } else {
-            puts("you missed this attack");
+            bputs("you missed this attack");
           }
         }
         // adjust state
@@ -164,42 +221,253 @@ char gameChoice() {
         gameLookUpPlace();
       } else if ('m' == opt) {
         gameLookUpMonster(&m);
-      } else if ('d' == opt) {
-        puts("");
-        if (CharacterState.bag.itemNumber[0] > 0) {
-          srand(time(NULL));
-          size_t heal = CharacterState.hpBound * (rand() % 37 + 31) * 0.01;
-          puts("drink poison...");
-          if (CharacterState.hp + heal > CharacterState.hpBound) {
-            CharacterState.hp = CharacterState.hpBound;
-          } else {
-            CharacterState.hp += heal;
-          }
-          // adjust state
-          CharacterState.bag.itemNumber[0] -= 1;
-          GameTP[0] += 1;
-          if (CharacterState.buff.time > 0) {
-            CharacterState.buff.time -= 1;
-          }
-          if (0 == CharacterState.buff.time) {
-            CharacterState.buff.hp = 0;
-            CharacterState.buff.damage = 0;
-          }
+      } else if ('r' == opt) {
+        srand(time(NULL));
+        size_t succ = rand() % 100;
+        if (succ < 70) {
+          bputs("you ran!");
+          CharacterState.state = 0;
+          break;
         } else {
-          puts("do not have poison...");
+          bputs("you're catched!");
+          size_t monsterDamage = m.damage / (1 + CharacterState.buff.hp);
+          if (CharacterState.hp > monsterDamage) {
+            CharacterState.hp -= monsterDamage;
+            puts("");
+            printf("you hp: %zu\n", CharacterState.hp);
+            puts("");
+          } else {
+            CharacterState.hp = 0;
+            bputs("you lost the game!");
+            return 'q';
+          }
         }
-        puts("");
-      } else if ('h' == opt || '?' == opt) {
-        fightHelper();
+        // adjust state
+        GameTP[0] += 1;
+        if (CharacterState.buff.time > 0) {
+          CharacterState.buff.time -= 1;
+        }
+        if (0 == CharacterState.buff.time) {
+          CharacterState.buff.hp = 0;
+          CharacterState.buff.damage = 0;
+        }
+      } else if ('d' == opt) {
+        drinkPoison();
       } else {
         fightHelper();
       }
     }
-    CharacterState.coin += m.coin;
-    CharacterState.state = 0;
+    if (0 == m.hp) {
+      bputs("you win");
+      CharacterState.coin += m.coin;
+      CharacterState.state = 0;
+    }
   } else if (2 == CharacterState.state) {
-    CharacterState.state = 0;
+    printf("B> what do you want to do? ");
+    opt = getchar();
+    while (getchar() != '\n')
+      ;
+    if ('d' == opt) {
+      drinkPoison();
+    } else if ('s' == opt) {
+      gameLookUpState();
+    } else if ('l' == opt) {
+      gameLookUpBag();
+    } else if ('c' == opt) {
+      puts("");
+      size_t wp = 0;
+      gameLookUpBag();
+      puts("B > use label");
+      printf("B> which weapon do you want to use? ");
+      scanf("%zu", &wp);
+      printf("you choosed %s\n", Weapons[wp].name);
+      while (getchar() != '\n')
+        ;
+      _Bool inSide = 0;
+      for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+        if (CharacterState.bag.items[i] == wp) {
+          inSide = 1;
+          break;
+        }
+      }
+      if (inSide) {
+        if (wp == CharacterState.wp) {
+          bputs("you already use this weapon!");
+        } else {
+          puts("");
+          printf("now, %s is your weapon\n", Weapons[wp].name);
+          CharacterState.wp = wp;
+          puts("");
+        }
+      } else {
+        bputs("invalid label!");
+      }
+    } else if ('b' == opt) {
+      CharacterState.state = 0;
+      puts("");
+    } else {
+      bagHelper();
+    }
   } else if (3 == CharacterState.state) {
+    srand(time(NULL));
+    printf("$> what do you want to do? ");
+    size_t hpPrice = rand() % 50 + 5;
+    opt = getchar();
+    while (getchar() != '\n')
+      ;
+    if ('l' == opt) {
+      puts("");
+      puts("item: random (0) -- price 20");
+      printf("item: hpBounds + 5 (1) -- price: %zu\n", hpPrice);
+      for (size_t i = 0; i < MONS_TYPE_COUNT; ++i) {
+        printf("item: %s (%zu) -- price: %zu\n", Weapons[ShopItems[i].wp].name,
+               i + 2, ShopItems[i].coin);
+      }
+      puts("");
+    } else if ('b' == opt) {
+      size_t pId = 0;
+      puts("");
+      puts("$ > use product id");
+      printf("$> which product do you want to buy? ");
+      scanf("%zu", &pId);
+      while (getchar() != '\n')
+        ;
+      puts("");
+      if (pId > MONS_TYPE_COUNT + 1) {
+        puts("invalid product id!");
+      } else {
+        if (0 == pId) {
+          if (CharacterState.coin < 20) {
+            puts("you don't have enough coin, failed!");
+          } else {
+            size_t randP = rand() % (MONS_TYPE_COUNT + 1);
+            if (0 == randP) {
+              puts("you will by the hpBound!");
+              puts("you hp bound up!");
+              CharacterState.hpBound += 5;
+              if (CharacterState.hp + 5 > CharacterState.hpBound) {
+                CharacterState.hp = CharacterState.hpBound;
+              } else {
+                CharacterState.hp += 5;
+              }
+            } else {
+              Product tProduct = ShopItems[randP - 1];
+              printf("you get %s\n", Weapons[tProduct.wp].name);
+              _Bool isHad = 0;
+              for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+                if (CharacterState.bag.items[i] == tProduct.wp) {
+                  isHad = 1;
+                  break;
+                }
+              }
+              if (isHad) {
+                puts("you already have this weapon!");
+                goto ENDSHOP;
+              } else {
+                CharacterState.bag.items[CharacterState.bag.itemCount++] =
+                    tProduct.wp;
+              }
+            }
+            CharacterState.coin -= 20;
+          }
+        } else if (1 == pId) {
+          puts("you choosed hp bound!");
+          if (hpPrice > CharacterState.coin) {
+            puts("you don't have enough coin, failed!");
+          } else {
+            puts("you hp bound up!");
+            CharacterState.hpBound += 5;
+            if (CharacterState.hp + 5 > CharacterState.hpBound) {
+              CharacterState.hp = CharacterState.hpBound;
+            } else {
+              CharacterState.hp += 5;
+            }
+            CharacterState.coin -= hpPrice;
+          }
+        } else {
+          printf("you choosed %s\n", Weapons[ShopItems[pId - 2].wp].name);
+          if (ShopItems[pId - 2].coin > CharacterState.coin) {
+            puts("you don't have enough coin, failed!");
+          } else {
+            _Bool isHad = 0;
+            for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+              if (CharacterState.bag.items[i] == ShopItems[pId - 2].wp) {
+                isHad = 1;
+                break;
+              }
+            }
+            if (isHad) {
+              puts("you already have this weapon!");
+              goto ENDSHOP;
+            } else {
+              printf("you get %s\n", Weapons[ShopItems[pId - 2].wp].name);
+              CharacterState.bag.items[CharacterState.bag.itemCount++] =
+                  ShopItems[pId - 2].wp;
+            }
+          }
+          CharacterState.coin -= ShopItems[pId - 2].coin;
+        }
+      }
+    ENDSHOP:
+      puts("");
+    } else if ('s' == opt) {
+      puts("");
+      srand(time(NULL));
+      // init item price
+      size_t *priceL = calloc(CharacterState.bag.itemCount, sizeof(size_t));
+      for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+        priceL[i] = rand() % 30 + 3;
+      }
+      for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
+        printf("%s (%zu): %zu\n", Weapons[CharacterState.bag.items[i]].name, i,
+               priceL[i]);
+      }
+      puts("");
+      size_t wId = 0;
+      puts("$> use item id");
+      printf("$> which weapon do you want to sold? ");
+      scanf("%zu", &wId);
+      while (getchar() != '\n')
+        ;
+      if (wId > CharacterState.bag.itemCount - 1) {
+        puts("invalid item id!");
+      } else {
+        printf("you sold %s\n", Weapons[CharacterState.bag.items[wId]].name);
+        // move
+        CharacterState.bag.itemCount -= 1;
+        for (size_t i = wId; i < CharacterState.bag.itemCount; ++i) {
+          CharacterState.bag.items[i] = CharacterState.bag.items[i + 1];
+        }
+        CharacterState.coin += priceL[wId];
+      }
+      free(priceL);
+      puts("");
+    } else if ('i' == opt) {
+      size_t pId = 0;
+      puts("");
+      puts("$ > use product id (> 1)");
+      printf("$> which product do you want to see? ");
+      scanf("%zu", &pId);
+      while (getchar() != '\n')
+        ;
+      puts("");
+      if (pId < 2) {
+        puts("invalid product id!");
+      } else {
+        puts("Weapon:");
+        printf("  name: %s\n", Weapons[ShopItems[pId - 2].wp].name);
+        printf("  damage: %zu\n", Weapons[ShopItems[pId - 2].wp].damage);
+        printf("  type: %s\n",
+               MonsterType[Weapons[ShopItems[pId - 2].wp].type]);
+        printf("price: %zu\n", ShopItems[pId - 2].coin);
+      }
+      puts("");
+    } else if ('n' == opt) {
+      CharacterState.state = 0;
+      puts("");
+    } else {
+      shopHelper();
+    }
   } else {
     fprintf(stderr, "invalid state %zu\n", CharacterState.state);
     exit(EXIT_FAILURE);
@@ -229,7 +497,7 @@ void gameWalk() {
            CharacterState.buff.damage, CharacterState.buff.time);
   } else if (8 == event) {
     puts("get a poison!");
-    CharacterState.bag.itemNumber[0] += 1;
+    CharacterState.bag.poisonNumber += 1;
   } else {
     puts("meet a monster!");
     CharacterState.state = 1;
@@ -315,9 +583,9 @@ void gameLookUpState() {
   }
   puts("");
   puts("Weapon:");
-  printf("  name: %s\n", CharacterState.wp.name);
-  printf("  damage: %zu\n", CharacterState.wp.damage);
-  printf("  type: %s\n", MonsterType[CharacterState.wp.type]);
+  printf("  name: %s\n", Weapons[CharacterState.wp].name);
+  printf("  damage: %zu\n", Weapons[CharacterState.wp].damage);
+  printf("  type: %s\n", MonsterType[Weapons[CharacterState.wp].type]);
   puts("");
 }
 
@@ -355,17 +623,37 @@ void gameLookUpMonster(Monster *m) {
 /// >> look up bag
 void gameLookUpBag() {
   puts("");
-  size_t tempLen = printf("poison: %zu\n", CharacterState.bag.itemNumber[0]);
+  size_t tempLen = printf("poison: %zu\n", CharacterState.bag.poisonNumber);
   for (size_t i = 0; i < tempLen; ++i) {
     putchar('-');
   }
   puts("");
   for (size_t i = 0; i < CharacterState.bag.itemCount; ++i) {
-    printf("%s: %zu\n", Weapons[CharacterState.bag.items[i]].name,
-           CharacterState.bag.itemNumber[i + 1]);
+    printf("%s (%zu) ", Weapons[CharacterState.bag.items[i]].name,
+           CharacterState.bag.items[i]);
+    if (CharacterState.wp == CharacterState.bag.items[i]) {
+      printf("*\n");
+    } else {
+      printf("\b\n");
+    }
   }
   CharacterState.state = 2;
   puts("");
+}
+
+/// @func: gameShop
+/// >> buy some weapon or hpBounds
+void gameShop() {
+  bputs("welcome to the game store!");
+  srand(time(NULL));
+  // init store
+  for (size_t i = 0; i < MONS_TYPE_COUNT; ++i) {
+    size_t wp = rand() % AllCount[2];
+    size_t coin = rand() % 50 + Weapons[wp].damage / 2;
+    ShopItems[i].coin = coin;
+    ShopItems[i].wp = wp;
+  }
+  CharacterState.state = 3;
 }
 
 /// @func: gameConfig

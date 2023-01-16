@@ -37,6 +37,14 @@ typedef struct Buff {
   size_t time;
 } Buff;
 
+/// @type: Weapon
+/// > the weapon
+/// @content: {name} the name of the weapon [ char[] ]
+/// @content: {damage} the damage the weapon will make [ size_t ]
+/// @content: {type} the type of the weapon [ size_t ]
+/// @descript:
+///   * the name of weapon cannot have special character or space
+///   * the type of weapon is same as the type of the monster
 typedef struct Weapon {
   char name[MAX_STR_LENGTH];
   size_t damage;
@@ -47,13 +55,13 @@ typedef struct Weapon {
 /// > the character's bag
 /// @content: {itemCount} the number of item types [ size_t ]
 /// @content: {items} all the items [ size_t[] ]
-/// @content: {itemNumber} the number of items [ size_t[] ]
+/// @content: {poisonNumber} the number of poison [ size_t ]
 /// @descript:
 ///   * the first item must be poison
 typedef struct Bag {
   size_t itemCount;
   size_t items[MAX_ITEM_COUNT];
-  size_t itemNumber[MAX_ITEM_COUNT];
+  size_t poisonNumber;
 } Bag;
 
 /// @type: Monster

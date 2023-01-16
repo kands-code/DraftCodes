@@ -22,13 +22,13 @@ void loadItemConfig(const char *path) {
 
   if (NULL == fileHandle) {
     fprintf(stderr, "item config file cannot find!\n");
-    fprintf(stderr, "generate default item config...\n");
+    fprintf(stderr, "generate default weapon config...\n");
     generateDefaultItem(path);
 
     // reopen file
     fileHandle = fopen(path, "r");
     if (NULL == fileHandle) {
-      perror("open item config ");
+      perror("open weapon config ");
       exit(EXIT_FAILURE);
     }
   }
@@ -100,22 +100,22 @@ void generateDefaultItem(const char *path) {
   fputs("[Weapon]\n", fileHandle);
   fputs("name = waterwhip\n", fileHandle);
   fputs("damage = 6\n", fileHandle);
-  fputs("type = 0\n", fileHandle);
+  fputs("type = 1\n", fileHandle);
   // grass knife
   fputs("[Weapon]\n", fileHandle);
   fputs("name = grassknife\n", fileHandle);
   fputs("damage = 4\n", fileHandle);
-  fputs("type = 0\n", fileHandle);
+  fputs("type = 2\n", fileHandle);
   // light sword
   fputs("[Weapon]\n", fileHandle);
   fputs("name = lightsword\n", fileHandle);
   fputs("damage = 5\n", fileHandle);
-  fputs("type = 0\n", fileHandle);
+  fputs("type = 4\n", fileHandle);
   // dark dagger
   fputs("[Weapon]\n", fileHandle);
   fputs("name = darkdagger\n", fileHandle);
   fputs("damage = 7\n", fileHandle);
-  fputs("type = 0\n", fileHandle);
+  fputs("type = 5\n", fileHandle);
 
   fclose(fileHandle);
 }

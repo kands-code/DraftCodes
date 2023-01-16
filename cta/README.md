@@ -4,6 +4,9 @@ The Textual Advantual Game written by C.
 
 ## Basic Element
 
+Easy to config, all the config is text
+and can be found under `CONF` folder.
+
 ### Character
 
 The most important element of this game is the main character,
@@ -78,6 +81,12 @@ GameTP[0] = rand() % 50;          // time
 GameTP[2] = rand() % AllCount[1]; // place
 ```
 
+#### Poison
+
+You can get poison by walk around.
+
+The effect of the posion is random (heal).
+
 #### Time
 
 A day, include day and night, can be counted as 50 prs.
@@ -88,10 +97,37 @@ That means you do 50 processes, a day passed.
 
 #### Envrionment
 
-<mark>**_TODO_**</mark>
+Place have some specific monsters,
+and it also have type, same as monster.
+
+The type of place can give monster a buff,
+independent to the relation of the types.
+
+```c
+typedef struct Place {
+  char name[MAX_STR_LENGTH];
+  size_t monsterTypes;
+  size_t monsters[MAX_ITEM_COUNT];
+  size_t type;
+  size_t range;
+} Place;
+```
 
 ### Shop
 
-#### Poison
+You can easily use `$` in normal mode
+to open game store.
 
 #### Weapon
+
+You can buy weapons in shop.
+
+```c
+typedef struct Weapon {
+  char name[MAX_STR_LENGTH];
+  size_t damage;
+  size_t type;
+} Weapon;
+```
+
+All the weapon can be configed.

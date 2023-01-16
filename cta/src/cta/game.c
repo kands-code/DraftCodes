@@ -103,6 +103,7 @@ static void drinkPoison() {
     // adjust state
     CharacterState.bag.poisonNumber -= 1;
     GameTP[0] += 1;
+    GameTP[0] %= GameTP[1];
     if (CharacterState.buff.time > 0) {
       CharacterState.buff.time -= 1;
     }
@@ -208,6 +209,7 @@ char gameChoice() {
         }
         // adjust state
         GameTP[0] += 1;
+        GameTP[0] %= GameTP[1];
         if (CharacterState.buff.time > 0) {
           CharacterState.buff.time -= 1;
         }
@@ -244,6 +246,7 @@ char gameChoice() {
         }
         // adjust state
         GameTP[0] += 1;
+        GameTP[0] %= GameTP[1];
         if (CharacterState.buff.time > 0) {
           CharacterState.buff.time -= 1;
         }
@@ -504,6 +507,7 @@ void gameWalk() {
   }
   // adjust state
   GameTP[0] += 1;
+  GameTP[0] %= GameTP[1];
   CharacterState.step += 1;
   if (CharacterState.buff.time > 0) {
     CharacterState.buff.time -= 1;
@@ -545,6 +549,7 @@ void gameTakeRest() {
     CharacterState.state = 1;
   }
   GameTP[0] += 1;
+  GameTP[0] %= GameTP[1];
   if (CharacterState.buff.time > 0) {
     CharacterState.buff.time -= 1;
   }
@@ -560,8 +565,8 @@ void gameTakeRest() {
 void gameLookUpState() {
   puts("");
   size_t tempLen =
-      printf("time: %s    place: %s\n", GameTP[0] < 30 ? "day" : "night",
-             Places[GameTP[2]].name);
+      printf("time: %s (%zu)    place: %s\n", GameTP[0] < 30 ? "day" : "night",
+             GameTP[0], Places[GameTP[2]].name);
   for (size_t i = 0; i < tempLen; ++i) {
     printf("-");
   }

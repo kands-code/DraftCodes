@@ -176,7 +176,8 @@ _Bool loadConfigs() {
     }
     // init place and time
     srand(time(NULL));                // srand
-    GameTP[0] = rand() % 50;          // time
+    GameTP[1] = 50;                   // range
+    GameTP[0] = rand() % GameTP[1];   // time
     GameTP[2] = rand() % AllCount[1]; // place
     fclose(globConfHandle);
     free(globConf);

@@ -2,6 +2,23 @@
 
 The Textual Adventual Game written in C.
 
+## TODOs
+
+- add a skill system
+
+```c
+typedef struct Skill {
+  char name[MAX_STR_LENGHT];
+  size_t type;
+  size_t damage;
+  float buffHp;
+  float huffDamage;
+  size_t buffTime;
+} Skill;
+```
+
+weapon and monster have skill, so monster must can have buff.
+
 ## Basic Element
 
 Easy to config, all the config is text

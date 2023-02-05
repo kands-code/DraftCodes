@@ -46,7 +46,7 @@ void loadItemConfig(const char *path) {
       char *configTag = calloc(MAX_STR_LENGTH, sizeof(char));
       sscanf(fileBuffer, "[%[^]\n] ", configTag);
       if (strcmp("Weapon", configTag)) {
-        fprintf(stderr, "wrong content in glob config: %s\n", configTag);
+        fprintf(stderr, "wrong content in weapon config: %s\n", configTag);
         exit(EXIT_FAILURE);
       } else if (wpCount + 1 > MAX_ITEM_COUNT) {
         fputs("too many weapons!", stderr);

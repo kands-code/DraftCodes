@@ -51,7 +51,7 @@ void loadCharacterConfig(const char *path) {
         char *configTag = calloc(MAX_STR_LENGTH, sizeof(char));
         sscanf(fileBuffer, "[%[^]\n] ", configTag);
         if (strcmp("Character", configTag)) {
-          fprintf(stderr, "wrong content in glob config: %s\n", configTag);
+          fprintf(stderr, "wrong content in character config: %s\n", configTag);
           exit(EXIT_FAILURE);
         }
         onlyOneCharacter = !onlyOneCharacter;

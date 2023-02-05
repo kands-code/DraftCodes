@@ -8,6 +8,6 @@ project(cmatrix C)
 
 add_subdirectory("cmatrix")
 
-add_executable(main "main.c")
+add_executable("${PROJECT_NAME}-exe" "main.c")
 
-target_link_libraries(main cmatrix m)
+target_link_libraries("${PROJECT_NAME}-exe" ${PROJECT_NAME} m)

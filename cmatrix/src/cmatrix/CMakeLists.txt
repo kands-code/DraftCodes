@@ -1,5 +1,9 @@
 add_library(${PROJECT_NAME} STATIC
-    "cmatrix.c"
+    "initM.c"
+    "attrM.c"
+    "manM.c"
+    "decpM.c"
+    "utils.c"
 )
 
 # use math library

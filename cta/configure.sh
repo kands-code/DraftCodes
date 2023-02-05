@@ -51,7 +51,7 @@ if [[ -d "$currPath/src/" ]] && [[ -f "$currPath/src/CMakeLists.txt" ]]; then
     -DCMAKE_BUILD_TYPE="$buildType" \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
-    -Wdev -Wdeprecated \
+    -Wdev -Wdeprecated -Wimplicit-function-declaration \
     -G "$buildGen"
 else
   echo "Not a CMake project!"

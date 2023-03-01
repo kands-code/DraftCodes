@@ -66,22 +66,29 @@ MatrixT *matrixIdentity(size_t row, size_t col) {
 /// @func: matrixFromInput
 /// @return: the matrix [ MatrixT * ]
 /// @descript:
-///   * input format follow `r + i`
-///   * must have the `+` sign
-///   * such as `3 - 3I` input as `3 + -3`
+///   * input format follow `r sign i`
+///   * such as `3 - 3I` input as `3 - 3`
 MatrixT *matrixFromInput() {
   size_t row, col;
   char tempChar = '\0';
   printf("matrix size: ");
   scanf("%zu %zu", &row, &col);
   fflush(stdin);
-  printf("size will be %zu, %zu\n", row, col);
   MatrixT *mat = matrixZero(row, col);
   puts("input data:");
   for (size_t i = 0; i < row * col; ++i) {
-    float real, imag;
-    scanf("%f + %f", &real, &imag);
-    mat->data[i] = CMPLXF(real, imag);
+    float real;
+    float imag;
+    char sign;
+    scanf("%f %c %f", &real, &sign, &imag);
+    if ('-' == sign && !isZero(imag)) {
+      mat->data[i] = CMPLXF(real, -imag);
+    } else if ('+' == sign || isZero(imag)) {
+      mat->data[i] = CMPLXF(real, imag);
+    } else {
+      fprintf(stderr, "Error: wrong sign (%c) for numeric!", sign);
+    }
+    fflush(stdin);
   }
   return mat;
 }
@@ -158,8 +165,15 @@ MatrixT **matrixFromFile(const char *filePath, size_t *matCnt) {
           }
           float real = 0.0f;
           float imag = 0.0f;
-          sscanf(value, "%f+%f", &real, &imag);
-          mats[matNumber]->data[cnt++] = CMPLXF(real, imag);
+          char sign = '\0';
+          sscanf(value, "%f %c %f", &real, &sign, &imag);
+          if ('-' == sign && !isZero(imag)) {
+            mats[matNumber]->data[cnt++] = CMPLXF(real, -imag);
+          } else if ('+' == sign || isZero(imag)) {
+            mats[matNumber]->data[cnt++] = CMPLXF(real, imag);
+          } else {
+            fprintf(stderr, "Error: wrong sign (%c) for numeric!", sign);
+          }
           valTemp = valTemp + strlen(value) + 1;
         }
         free(value);
@@ -189,7 +203,7 @@ MatrixT **matrixFromFile(const char *filePath, size_t *matCnt) {
 ///   *
 ///   * [Matrix]
 ///   * size = 2 2
-///   * data = 1 2 3 4
+///   * data = 1+0 2+0 3+0 4+0
 ///   *
 ///   * will save as `matFile.mdf`
 ///   * file will truncate
@@ -202,7 +216,7 @@ void matrixToFile(const char *filePath, size_t matCnt, MatrixT *mats[matCnt]) {
     fprintf(fileHandle, "size = %zu %zu\n", mats[i]->size[0], mats[i]->size[1]);
     fputs("data =", fileHandle);
     for (size_t j = 0; j < mats[i]->size[0] * mats[i]->size[1]; ++j) {
-      fprintf(fileHandle, " %.3f+%.3f", crealf(mats[i]->data[j]),
+      fprintf(fileHandle, " %.3f%+.3f", crealf(mats[i]->data[j]),
               cimagf(mats[i]->data[j]));
     }
     fputs("\n\n", fileHandle);

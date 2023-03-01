@@ -61,6 +61,50 @@ complex float matrixDeterminant(MatrixT *mat) {
   return det;
 }
 
+/// @func: matrixRow
+/// >> get the specific row of a matrix
+/// @param: {row} the row emit [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the row of the original matrix [ MatrixT * ]
+MatrixT *matrixRow(size_t row, MatrixT *mat) {
+  IS_NULL(mat);
+  if (row == 0 || row > mat->size[0]) {
+    fputs("Error: out of boundary!", stderr);
+    fprintf(stderr,
+            "Error: you want to access the %zu row on a matrix"
+            " with size (%zu, %zu)\n",
+            row, mat->size[0], mat->size[1]);
+    exit(EXIT_FAILURE);
+  }
+  MatrixT *matRow = matrixZero(1, mat->size[1]);
+  for (size_t i = 1; i <= mat->size[1]; ++i) {
+    matrixSet(1, i, matRow, matrixGet(row, i, mat));
+  }
+  return matRow;
+}
+
+/// @func: matrixCol
+/// >> get the specific column of a matrix
+/// @param: {col} the column emit [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the column of the original matrix [ MatrixT * ]
+MatrixT *matrixCol(size_t col, MatrixT *mat) {
+  IS_NULL(mat);
+  if (col == 0 || col > mat->size[1]) {
+    fputs("Error: out of boundary!", stderr);
+    fprintf(stderr,
+            "Error: you want to access the %zu column on a matrix"
+            " with size (%zu, %zu)\n",
+            col, mat->size[0], mat->size[1]);
+    exit(EXIT_FAILURE);
+  }
+  MatrixT *matCol = matrixZero(mat->size[0], 1);
+  for (size_t i = 1; i <= mat->size[1]; ++i) {
+    matrixSet(i, 1, matCol, matrixGet(i, col, mat));
+  }
+  return matCol;
+}
+
 /// @func: matrixSubmatrix
 /// >> get the submatrix of a matrix
 /// @param: {row} the row emit [ size_t ]

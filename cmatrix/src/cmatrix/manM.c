@@ -29,9 +29,9 @@ void matrixPrintAlter(MatrixT *mat, int alt) {
     putchar('[');
     for (size_t j = 1; j < mat->size[1]; ++j) {
       complex float val = matrixGet(i, j, mat);
-      printf("(%.*f, %.*f), ", alt, crealf(val), alt, cimagf(val));
+      printf("%.*f%+.*f, ", alt, crealf(val), alt, cimagf(val));
     }
-    printf("(%.*f, %.*f)]\n", alt, crealf(matrixGet(i, mat->size[1], mat)), alt,
+    printf("%.*f%+.*f]\n", alt, crealf(matrixGet(i, mat->size[1], mat)), alt,
            cimagf(matrixGet(i, mat->size[1], mat)));
   }
   puts("<<mat>>");
@@ -81,7 +81,7 @@ void matrixSet(size_t row, size_t col, MatrixT *mat, complex float val) {
 /// @func: matrixAdd
 /// >> add two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the sum [ MatrixT * ]
 MatrixT *matrixAdd(MatrixT *m1, MatrixT *m2) {
   IS_NULL(m1);
@@ -102,7 +102,7 @@ MatrixT *matrixAdd(MatrixT *m1, MatrixT *m2) {
 /// @func: matrixSub
 /// >> substract a matrix from another matrix
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the rest [ MatrixT * ]
 MatrixT *matrixSub(MatrixT *m1, MatrixT *m2) {
   MatrixT *negM = matrixNegate(m2);
@@ -111,10 +111,31 @@ MatrixT *matrixSub(MatrixT *m1, MatrixT *m2) {
   return restM;
 }
 
+/// @func: matrixCommonInnerProduct
+/// >> get the common inner product of two vectors
+/// @param: {v1} the first vector [ MatrixT * ]
+/// @param: {v2} the second vector [ MatrixT * ]
+/// @return: the inner product [ complex float ]
+/// @descript:
+///   * v1 is a row vector and v2 is a column vector
+complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2) {
+  IS_NULL(v1);
+  IS_NULL(v2);
+  if (v1->size[0] != 1 || v2->size[1] != 1 || v1->size[1] != v2->size[0]) {
+    fputs("Error: can not match the size!", stderr);
+    exit(EXIT_FAILURE);
+  }
+  complex float res = CMPLXF(0, 0);
+  for (size_t i = 0; i < v1->size[1]; ++i) {
+    res += v1->data[i] * v2->data[i];
+  }
+  return res;
+}
+
 /// @func: matrixMul
 /// >> multiply two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the product [ MatrixT * ]
 /// @descript:
 ///   * a vector inner product could be <a|b>
@@ -129,13 +150,14 @@ MatrixT *matrixMul(MatrixT *m1, MatrixT *m2) {
     exit(EXIT_FAILURE);
   }
   MatrixT *prodM = matrixZero(m1->size[0], m2->size[1]);
-  for (size_t i = 1; i <= prodM->size[0]; ++i) {
-    for (size_t k = 1; k <= prodM->size[1]; ++k) {
-      for (size_t j = 1; j <= m1->size[1]; ++j) {
-        matrixSet(i, k, prodM,
-                  matrixGet(i, k, prodM) +
-                      matrixGet(i, j, m1) * matrixGet(j, k, m2));
-      }
+  for (size_t i = 1; i <= m1->size[0]; ++i) {
+    for (size_t j = 1; j <= m2->size[1]; ++j) {
+      MatrixT *row = matrixRow(i, m1);
+      MatrixT *col = matrixCol(j, m2);
+      complex float prodV = matrixCommonInnerProduct(row, col);
+      matrixSet(i, j, prodM, prodV);
+      matrixDrop(col);
+      matrixDrop(row);
     }
   }
   return prodM;
@@ -144,7 +166,7 @@ MatrixT *matrixMul(MatrixT *m1, MatrixT *m2) {
 /// @func: matrixInnerProduct
 /// >> get the inner product of two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the inner product [ MatrixT * ]
 /// @descript:
 ///   * the size of the two matrices must be matched

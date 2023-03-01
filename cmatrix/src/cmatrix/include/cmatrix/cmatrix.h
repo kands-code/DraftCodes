@@ -69,12 +69,10 @@ extern MatrixT *matrixOne(size_t row, size_t col);
 extern MatrixT *matrixIdentity(size_t row, size_t col);
 
 /// @func: matrixFromInput
-/// >> get a matrix from user input
 /// @return: the matrix [ MatrixT * ]
 /// @descript:
-///   * input format follow `r + i`
-///   * must have the `+` sign
-///   * such as `3 - 3I` input as `3 + -3`
+///   * input format follow `r sign i`
+///   * such as `3 - 3I` input as `3 - 3`
 extern MatrixT *matrixFromInput();
 
 /// @func: matrixFromFile
@@ -94,7 +92,7 @@ extern MatrixT **matrixFromFile(const char *filePath, size_t *matCnt);
 ///   *
 ///   * [Matrix]
 ///   * size = 2 2
-///   * data = 1 2 3 4
+///   * data = 1+0 2+0 3+0 4+0
 ///   *
 ///   * will save as `matFile.mdf`
 ///   * file will truncate
@@ -120,6 +118,20 @@ extern MatrixT *matrixTranspose(MatrixT *mat);
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the determinant [ complex float ]
 extern complex float matrixDeterminant(MatrixT *mat);
+
+/// @func: matrixRow
+/// >> get the specific row of a matrix
+/// @param: {row} the row emit [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the row of the original matrix [ MatrixT * ]
+extern MatrixT *matrixRow(size_t row, MatrixT *mat);
+
+/// @func: matrixCol
+/// >> get the specific column of a matrix
+/// @param: {col} the column emit [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the column of the original matrix [ MatrixT * ]
+extern MatrixT *matrixCol(size_t col, MatrixT *mat);
 
 /// @func: matrixSubmatrix
 /// >> get the submatrix of a matrix
@@ -189,21 +201,30 @@ extern void matrixSet(size_t row, size_t col, MatrixT *mat, complex float val);
 /// @func: matrixAdd
 /// >> add two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the sum [ MatrixT * ]
 extern MatrixT *matrixAdd(MatrixT *m1, MatrixT *m2);
 
 /// @func: matrixSub
 /// >> substract a matrix from another matrix
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the rest [ MatrixT * ]
 extern MatrixT *matrixSub(MatrixT *m1, MatrixT *m2);
+
+/// @func: matrixCommonInnerProduct
+/// >> get the common inner product of two vectors
+/// @param: {v1} the first vector [ MatrixT * ]
+/// @param: {v2} the second vector [ MatrixT * ]
+/// @return: the inner product [ complex float ]
+/// @descript:
+///   * v1 is a row vector and v2 is a column vector
+extern complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2);
 
 /// @func: matrixMul
 /// >> multiply two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the product [ MatrixT * ]
 /// @descript:
 ///   * a vector inner product could be <a|b>
@@ -215,7 +236,7 @@ extern MatrixT *matrixMul(MatrixT *m1, MatrixT *m2);
 /// @func: matrixInnerProduct
 /// >> get the inner product of two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
-/// @param: {m2} the second matrux [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the inner product [ MatrixT * ]
 /// @descript:
 ///   * the size of the two matrices must be matched

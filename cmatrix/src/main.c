@@ -4,19 +4,14 @@
 #include <stdio.h>
 
 int main() {
-  size_t mCnt = 0;
-  MatrixT **mats = matrixFromFile("./data/read.mdf", &mCnt);
-  printf("%f %f\n", crealf(matrixGet(1, 1, mats[0])),
-         cimagf(matrixGet(1, 1, mats[0])));
-  matrixPrint(mats[0]);
+  MatrixT *m1 = matrixFromInput();
+  MatrixT *m2 = matrixFromInput();
 
-  MatrixT *subM = matrixSubmatrix(1, 1, mats[0]);
-  matrixPrint(subM);
+  MatrixT *prod = matrixMul(m1, m2);
+  matrixPrint(prod);
 
-  matrixDrop(subM);
-  for (size_t i = 0; i < mCnt; ++i) {
-    matrixDrop(mats[i]);
-  }
-
+  matrixDrop(prod);
+  matrixDrop(m2);
+  matrixDrop(m1);
   return 0;
 }

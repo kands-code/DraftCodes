@@ -9,4 +9,4 @@
 
 // -- FUNC
 
-void KSL_parse(const char *text) { printf("strat parse"); }
+void KSL_parse(const char *source) { printf("strat parse"); }

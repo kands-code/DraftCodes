@@ -1,5 +1,6 @@
 add_library(${PROJECT_NAME} STATIC
     "ksl.c"
+    "utils.c"
 )
 
 target_include_directories(${PROJECT_NAME}

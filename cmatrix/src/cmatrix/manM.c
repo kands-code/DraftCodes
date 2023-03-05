@@ -5,6 +5,7 @@
 
 #include "cmatrix/cmatrix.h"
 #include "cmatrix/utils.h"
+
 #include <complex.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -29,9 +30,9 @@ void matrixPrintAlter(MatrixT *mat, int alt) {
     putchar('[');
     for (size_t j = 1; j < mat->size[1]; ++j) {
       complex float val = matrixGet(i, j, mat);
-      printf("%.*f%+.*f, ", alt, crealf(val), alt, cimagf(val));
+      printf("%.*f%+.*fI, ", alt, crealf(val), alt, cimagf(val));
     }
-    printf("%.*f%+.*f]\n", alt, crealf(matrixGet(i, mat->size[1], mat)), alt,
+    printf("%.*f%+.*fI]\n", alt, crealf(matrixGet(i, mat->size[1], mat)), alt,
            cimagf(matrixGet(i, mat->size[1], mat)));
   }
   puts("<<mat>>");
@@ -46,7 +47,7 @@ void matrixPrintAlter(MatrixT *mat, int alt) {
 /// @descript: row and col start from `1`
 complex float matrixGet(size_t row, size_t col, MatrixT *mat) {
   if (row > mat->size[0] || col > mat->size[1]) {
-    fputs("Error: out of boundary!", stderr);
+    fputs("Error: out of boundary!\n", stderr);
     fprintf(stderr,
             "Error: you want to access (%zu, %zu) on a matrix"
             " with size (%zu, %zu)\n",
@@ -68,7 +69,7 @@ complex float matrixGet(size_t row, size_t col, MatrixT *mat) {
 ///   * row and col start from `1`
 void matrixSet(size_t row, size_t col, MatrixT *mat, complex float val) {
   if (row > mat->size[0] || col > mat->size[1]) {
-    fputs("Error: out of boundary!", stderr);
+    fputs("Error: out of boundary!\n", stderr);
     fprintf(stderr,
             "Error: you want to modify (%zu, %zu) on a matrix"
             " with size (%zu, %zu)\n",
@@ -130,6 +131,19 @@ complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2) {
     res += v1->data[i] * v2->data[i];
   }
   return res;
+}
+
+/// @func: matrixScaleMul
+/// >> multiply a scale and a matrix
+/// @param: {scale} the number [ complex float ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the product [ MatrixT * ]
+MatrixT *matrixScaleMul(complex float scale, MatrixT *mat) {
+  MatrixT *prodM = matrixZero(mat->size[0], mat->size[1]);
+  for (size_t i = 0; i < mat->size[0] * mat->size[1]; ++i) {
+    prodM->data[i] = mat->data[i] * scale;
+  }
+  return prodM;
 }
 
 /// @func: matrixMul

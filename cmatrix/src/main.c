@@ -2,16 +2,13 @@
 #include <complex.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
-  MatrixT *m1 = matrixFromInput();
-  MatrixT *m2 = matrixFromInput();
+  MatrixT *m = matrixFromInput();
+  complex float det = matrixDeterminant(m);
+  printf("%.3f + %.3fI\n", crealf(det), cimag(det));
+  matrixDrop(m);
 
-  MatrixT *prod = matrixMul(m1, m2);
-  matrixPrint(prod);
-
-  matrixDrop(prod);
-  matrixDrop(m2);
-  matrixDrop(m1);
   return 0;
 }

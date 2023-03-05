@@ -34,9 +34,10 @@ MatrixT *matrixNegate(MatrixT *mat) {
 /// @return: the transposed matrix [ MatrixT * ]
 MatrixT *matrixTranspose(MatrixT *mat) {
   IS_NULL(mat);
+
   MatrixT *transMat = matrixZero(mat->size[1], mat->size[0]);
   for (size_t i = 1; i <= transMat->size[0]; ++i) {
-    for (size_t j = 1; i <= transMat->size[1]; ++j) {
+    for (size_t j = 1; j <= transMat->size[1]; ++j) {
       matrixSet(i, j, transMat, matrixGet(j, i, mat));
     }
   }
@@ -53,11 +54,12 @@ complex float matrixDeterminant(MatrixT *mat) {
     fputs("Error: non-square matrix do not have normal determinant!\n", stderr);
     exit(EXIT_FAILURE);
   }
-  MatrixT **luM = matrixLUDecompose(mat);
+  MatrixT **lu = matrixLUDecompose(mat);
   complex float det = CMPLXF(1.0f, 0.0f);
-  for (size_t i = 0; i < mat->size[0]; ++i) {
-    det *= matrixGet(i, i, luM[1]);
+  for (size_t i = 1; i <= mat->size[0]; ++i) {
+    det *= matrixGet(i, i, lu[1]);
   }
+  matrixLUDrop(lu);
   return det;
 }
 
@@ -69,7 +71,7 @@ complex float matrixDeterminant(MatrixT *mat) {
 MatrixT *matrixRow(size_t row, MatrixT *mat) {
   IS_NULL(mat);
   if (row == 0 || row > mat->size[0]) {
-    fputs("Error: out of boundary!", stderr);
+    fputs("Error: out of boundary!\n", stderr);
     fprintf(stderr,
             "Error: you want to access the %zu row on a matrix"
             " with size (%zu, %zu)\n",
@@ -91,7 +93,7 @@ MatrixT *matrixRow(size_t row, MatrixT *mat) {
 MatrixT *matrixCol(size_t col, MatrixT *mat) {
   IS_NULL(mat);
   if (col == 0 || col > mat->size[1]) {
-    fputs("Error: out of boundary!", stderr);
+    fputs("Error: out of boundary!\n", stderr);
     fprintf(stderr,
             "Error: you want to access the %zu column on a matrix"
             " with size (%zu, %zu)\n",
@@ -128,7 +130,6 @@ MatrixT *matrixSubmatrix(size_t row, size_t col, MatrixT *mat) {
       if (j == col) {
         continue;
       }
-      printf("%zu, %zu\n", cntRow, cntCol);
       matrixSet(cntRow, cntCol, subM, matrixGet(i, j, mat));
       cntCol++;
     }
@@ -141,13 +142,48 @@ MatrixT *matrixSubmatrix(size_t row, size_t col, MatrixT *mat) {
 /// >> get the cofactor matrix of a matrix
 /// @param: {mat} the matrix
 /// @return: the cofactor matrix of the original matrix [ MatrixT * ]
-extern MatrixT *matrixCofactorMatrix(MatrixT *mat);
+MatrixT *matrixCofactorMatrix(MatrixT *mat) {
+  MatrixT *coM = matrixZero(mat->size[0], mat->size[1]);
+
+  for (size_t i = 1; i <= coM->size[0]; ++i) {
+    for (size_t j = 1; j <= coM->size[1]; ++j) {
+      MatrixT *subM = matrixSubmatrix(i, j, mat);
+      complex float det = matrixDeterminant(subM);
+      matrixSet(i, j, coM, (i + j) & 1 ? -det : det);
+      matrixDrop(subM);
+    }
+  }
+
+  return coM;
+}
 
 /// @func: matrixAdjugate
 /// >> get the adjugate matrix of a matrix
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the adjugate matrix [ MatrixT * ]
-extern MatrixT *matrixAdjugate(MatrixT *mat);
+MatrixT *matrixAdjugate(MatrixT *mat) {
+  MatrixT *coM = matrixCofactorMatrix(mat);
+  MatrixT *adjM = matrixTranspose(coM);
+  matrixDrop(coM);
+  return adjM;
+}
+
+/// @func: matrixInverse
+/// >> get the inverse of the matrix
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the inverse matrix [ MatrixT * ]
+MatrixT *matrixInverse(MatrixT *mat) {
+  complex float det = matrixDeterminant(mat);
+  if (isZero(det)) {
+    fputs("Error: matrix with determinant which is zero have no inverse!\n",
+          stderr);
+    exit(EXIT_FAILURE);
+  }
+  MatrixT *adjM = matrixAdjugate(mat);
+  MatrixT *invM = matrixScaleMul(CMPLXF(1.0f, 0.0f) / det, adjM);
+  // matrixDrop(adjM);
+  return invM;
+}
 
 /// @func: matrixHermitianConjugate
 /// >> get the hermitian conjugate of the matrix
@@ -168,11 +204,36 @@ MatrixT *matrixHermitianConjugate(MatrixT *mat) {
 
 /// @func: matrixDrop
 /// >> destory a matrix
-/// @param: {mat} the matrix
+/// @param: {mat} the matrix [ Matrix * ]
 void matrixDrop(MatrixT *mat) {
   if (NULL == mat) {
     return;
   }
   free(mat->data);
   free(mat);
+}
+
+/// @func: matrixLUDrop
+/// >> destory LU matrices
+/// @param: {lu} the LU matrices [ Matrix ** ]
+void matrixLUDrop(MatrixT **lu) {
+  if (NULL == lu) {
+    return;
+  }
+  matrixDrop(lu[0]);
+  matrixDrop(lu[1]);
+  free(lu);
+}
+
+/// @func: matrixLDUDrop
+/// >> destory LDU matrices
+/// @param: {ldu} the LDU matrices [ Matrix ** ]
+void matrixLDUDrop(MatrixT **ldu) {
+  if (NULL == ldu) {
+    return;
+  }
+  matrixDrop(ldu[0]);
+  matrixDrop(ldu[1]);
+  matrixDrop(ldu[2]);
+  free(ldu);
 }

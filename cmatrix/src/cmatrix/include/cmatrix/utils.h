@@ -1,11 +1,13 @@
 /// @file: cmatrix/utils.h
 #pragma once
-#include "cmatrix/cmatrix.h"
 #ifndef __CMATRIX_UTILS_H__
 #define __CMATRIX_UTILS_H__
 
 // -- INCLUDE
 
+#include "cmatrix/cmatrix.h"
+
+#include <complex.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,8 +33,14 @@ extern void isValidFilePath(const char *filePath);
 
 /// @func: isZero
 /// >> check the float number is whether zero or not
-/// @param: {num} the number [ float ]
-/// @return: 1 for true, 0 for false
-extern _Bool isZero(float num);
+/// @param: {num} the number [ complex float ]
+/// @return: 1 for true, 0 for false [ _Bool ]
+extern _Bool isZero(complex float num);
+
+/// @func: matrixCopy
+/// >> copy a matrix
+/// @param: {mat} the matrix [ Matrix * ]
+/// @return: the copy of original matrix [ Matrix * ]
+extern MatrixT *matrixCopy(MatrixT *mat);
 
 #endif

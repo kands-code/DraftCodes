@@ -5,6 +5,7 @@
 
 #include "cmatrix/cmatrix.h"
 #include "cmatrix/utils.h"
+
 #include <complex.h>
 #include <ctype.h>
 #include <stddef.h>

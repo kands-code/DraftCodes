@@ -153,6 +153,12 @@ extern MatrixT *matrixCofactorMatrix(MatrixT *mat);
 /// @return: the adjugate matrix [ MatrixT * ]
 extern MatrixT *matrixAdjugate(MatrixT *mat);
 
+/// @func: matrixInverse
+/// >> get the inverse of the matrix
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the inverse matrix [ MatrixT * ]
+extern MatrixT *matrixInverse(MatrixT *mat);
+
 /// @func: matrixHermitianConjugate
 /// >> get the hermitian conjugate of the matrix
 /// @param: {mat} the matrix [ MatrixT * ]
@@ -161,8 +167,18 @@ extern MatrixT *matrixHermitianConjugate(MatrixT *mat);
 
 /// @func: matrixDrop
 /// >> destory a matrix
-/// @param: {mat} the matrix
+/// @param: {mat} the matrix [ Matrix * ]
 extern void matrixDrop(MatrixT *mat);
+
+/// @func: matrixLUDrop
+/// >> destory LU matrices
+/// @param: {lu} the LU matrices [ Matrix ** ]
+extern void matrixLUDrop(MatrixT **lu);
+
+/// @func: matrixLDUDrop
+/// >> destory LDU matrices
+/// @param: {ldu} the LDU matrices [ Matrix ** ]
+extern void matrixLDUDrop(MatrixT **ldu);
 
 /// manipulate matrix
 
@@ -221,6 +237,13 @@ extern MatrixT *matrixSub(MatrixT *m1, MatrixT *m2);
 ///   * v1 is a row vector and v2 is a column vector
 extern complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2);
 
+/// @func: matrixScaleMul
+/// >> multiply a scale and a matrix
+/// @param: {scale} the number [ complex float ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the product [ MatrixT * ]
+extern MatrixT *matrixScaleMul(complex float scale, MatrixT *mat);
+
 /// @func: matrixMul
 /// >> multiply two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
@@ -248,12 +271,14 @@ extern MatrixT *matrixInnerProduct(MatrixT *m1, MatrixT *m2);
 /// >> decompose a matrix into LU
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the result of decompose [ MatrixT ** ]
+/// @descript: the result is L^{-1} U, not L U
 extern MatrixT **matrixLUDecompose(MatrixT *mat);
 
 /// @func: matrixLDUDecompose
 /// >> decompose a matrix into LDU
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the result of decompose [ MatrixT ** ]
+/// @descript: the result is L^{-1} D U, not L D U
 extern MatrixT **matrixLDUDecompose(MatrixT *mat);
 
 #endif

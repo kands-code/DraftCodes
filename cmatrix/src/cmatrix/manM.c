@@ -177,6 +177,26 @@ MatrixT *matrixMul(MatrixT *m1, MatrixT *m2) {
   return prodM;
 }
 
+/// @func: matrixPower
+/// >> get the power of matrix
+/// @param: {pow} the power [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the power of matrix [ MatrixT * ]
+MatrixT *matrixPower(size_t pow, MatrixT *mat) {
+  IS_NULL(mat);
+  if (mat->size[0] != mat->size[1]) {
+    fputs("Error: non-square matrix can not do power!\n", stderr);
+    exit(EXIT_FAILURE);
+  }
+  MatrixT *powM = matrixIdentity(mat->size[0], mat->size[1]);
+  for (size_t i = 0; i < pow; ++i) {
+    MatrixT *newPowM = matrixMul(mat, powM);
+    matrixDrop(powM);
+    powM = newPowM;
+  }
+  return powM;
+}
+
 /// @func: matrixInnerProduct
 /// >> get the inner product of two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]

@@ -31,10 +31,10 @@ MatrixT **matrixLUDecompose(MatrixT *mat) {
   MatrixT **lu = calloc(2, sizeof(MatrixT *));
   MatrixT *transM = matrixIdentity(mat->size[0], mat->size[1]);
   MatrixT *copyM = matrixCopy(mat);
-
-  for (size_t i = 1; i < copyM->size[0]; ++i) {
+  for (size_t i = 1, indent = 0; i < copyM->size[0]; ++i) {
     // check pivot
-    if (isZero(matrixGet(i, i, copyM))) {
+  CHECK:
+    if (isZero(matrixGet(i, i + indent, copyM))) {
       size_t targetRow = i + 1;
       // find the non-zero row
       for (size_t row = targetRow; row <= copyM->size[0]; ++row) {
@@ -42,8 +42,9 @@ MatrixT **matrixLUDecompose(MatrixT *mat) {
           targetRow = row;
           break;
         } else if (row == copyM->size[0]) {
-          fputs("Error: strange matrix can not do\n", stderr);
-          exit(EXIT_FAILURE);
+          fputs("Warn: this is a strange matrix\n", stderr);
+          indent++;
+          goto CHECK;
         }
       }
       // create the exchange matrix
@@ -65,9 +66,10 @@ MatrixT **matrixLUDecompose(MatrixT *mat) {
     MatrixT *elimM = matrixIdentity(mat->size[0], mat->size[1]);
     for (size_t row = i + 1; row <= copyM->size[0]; ++row) {
       complex float divisor =
-          -matrixGet(row, i, copyM) / matrixGet(i, i, copyM);
+          -matrixGet(row, i + indent, copyM) / matrixGet(i, i + indent, copyM);
       matrixSet(row, i, elimM, divisor);
     }
+
     // apply elimilation
     MatrixT *newTransM = matrixMul(elimM, transM);
     matrixDrop(transM);
@@ -95,9 +97,11 @@ MatrixT **matrixLDUDecompose(MatrixT *mat) {
   MatrixT *diagM = matrixIdentity(mat->size[0], mat->size[1]);
   for (size_t i = 1; i <= mat->size[0]; ++i) {
     complex float val = matrixGet(i, i, lu[1]);
-    if (!isZero(val)) {
-      matrixSet(i, i, diagM, val);
+    if (isZero(val)) {
+      fputs("Error: strange matrix cannot do LDU decompose!\n", stderr);
+      exit(EXIT_FAILURE);
     }
+    matrixSet(i, i, diagM, val);
   }
   ldu[1] = diagM;
   MatrixT *toOneM = matrixIdentity(mat->size[0], mat->size[1]);

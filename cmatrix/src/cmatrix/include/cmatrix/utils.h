@@ -8,6 +8,7 @@
 #include "cmatrix/cmatrix.h"
 
 #include <complex.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +35,8 @@ extern void isValidFilePath(const char *filePath);
 /// @func: isZero
 /// >> check the float number is whether zero or not
 /// @param: {num} the number [ complex float ]
-/// @return: 1 for true, 0 for false [ _Bool ]
-extern _Bool isZero(complex float num);
+/// @return: the result [ bool ]
+extern bool isZero(complex float num);
 
 /// @func: matrixCopy
 /// >> copy a matrix

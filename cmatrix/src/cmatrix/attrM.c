@@ -7,6 +7,7 @@
 #include "cmatrix/utils.h"
 #include <complex.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,9 +36,9 @@ MatrixT *matrixNegate(MatrixT *mat) {
 MatrixT *matrixHermitianConjugate(MatrixT *mat) {
   IS_NULL(mat);
   MatrixT *hermMat = matrixZero(mat->size[1], mat->size[0]);
-  for (size_t i = 1; i <= hermMat->size[0]; ++i) {
-    for (size_t j = 1; j <= hermMat->size[1]; ++j) {
-      complex float val = matrixGet(i, j, hermMat);
+  for (size_t i = 1; i <= mat->size[0]; ++i) {
+    for (size_t j = 1; j <= mat->size[1]; ++j) {
+      complex float val = matrixGet(i, j, mat);
       // conjugate
       matrixSet(j, i, hermMat, CMPLXF(crealf(val), -cimagf(val)));
     }
@@ -62,6 +63,33 @@ complex float matrixDeterminant(MatrixT *mat) {
   }
   matrixLUDrop(lu);
   return det;
+}
+
+/// @func: matrixRank
+/// >> get the matrix rank
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the rank of matrix [ size_t ]
+size_t matrixRank(MatrixT *mat) {
+  IS_NULL(mat);
+  MatrixT **lu = matrixLUDecompose(mat);
+  size_t rank = 0;
+  for (size_t i = 1; i <= lu[1]->size[0]; ++i) {
+    bool hasNonZero = false;
+    for (size_t j = 1; j <= lu[1]->size[1]; ++j) {
+      if (!isZero(matrixGet(i, j, lu[1]))) {
+        hasNonZero = true;
+        rank++;
+        break;
+      }
+    }
+    if (hasNonZero) {
+      hasNonZero = false;
+    } else {
+      break;
+    }
+  }
+RANK:
+  return rank;
 }
 
 /// @func: matrixRow
@@ -102,7 +130,7 @@ MatrixT *matrixCol(size_t col, MatrixT *mat) {
     exit(EXIT_FAILURE);
   }
   MatrixT *matCol = matrixZero(mat->size[0], 1);
-  for (size_t i = 1; i <= mat->size[1]; ++i) {
+  for (size_t i = 1; i <= mat->size[0]; ++i) {
     matrixSet(i, 1, matCol, matrixGet(i, col, mat));
   }
   return matCol;
@@ -184,6 +212,26 @@ MatrixT *matrixInverse(MatrixT *mat) {
   MatrixT *invM = matrixScaleMul(CMPLXF(1.0f, 0.0f) / det, adjM);
   // matrixDrop(adjM);
   return invM;
+}
+
+/// @func: matrixEqual
+/// >> Check if the two matrices are the same
+/// @param: {m1} the first matrix [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
+/// @return: the result [ bool ]
+bool matrixEqual(MatrixT *m1, MatrixT *m2) {
+  IS_NULL(m1);
+  IS_NULL(m2);
+
+  if (m1->size[0] != m2->size[0] || m1->size[1] != m2->size[1]) {
+    return false;
+  }
+  for (size_t i = 0; i < m1->size[0] * m2->size[1]; ++i) {
+    if (!isZero(m1->data[i] - m2->data[i])) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /// @func: matrixDrop

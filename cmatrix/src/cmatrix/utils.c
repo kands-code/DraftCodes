@@ -8,6 +8,7 @@
 #include <complex.h>
 #include <math.h>
 #include <regex.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,13 +36,13 @@ void isValidFilePath(const char *filePath) {
 /// @func: isZero
 /// >> check the float number is whether zero or not
 /// @param: {num} the number [ complex float ]
-/// @return: 1 for true, 0 for false [ _Bool ]
-_Bool isZero(complex float num) {
+/// @return: the result [ bool ]
+bool isZero(complex float num) {
   const float ESP = 1e-4;
   if (fabsf(crealf(num)) < ESP && fabsf(cimagf(num)) < ESP) {
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 /// @func: matrixCopy

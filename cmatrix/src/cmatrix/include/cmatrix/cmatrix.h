@@ -6,6 +6,7 @@
 // -- INCLUDE
 
 #include <complex.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 // -- MACRO
@@ -119,6 +120,12 @@ extern MatrixT *matrixHermitianConjugate(MatrixT *mat);
 /// @return: the determinant [ complex float ]
 extern complex float matrixDeterminant(MatrixT *mat);
 
+/// @func: matrixRank
+/// >> get the matrix rank
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the rank of matrix [ size_t ]
+extern size_t matrixRank(MatrixT *mat);
+
 /// @func: matrixRow
 /// >> get the specific row of a matrix
 /// @param: {row} the row emit [ size_t ]
@@ -158,6 +165,13 @@ extern MatrixT *matrixAdjugate(MatrixT *mat);
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the inverse matrix [ MatrixT * ]
 extern MatrixT *matrixInverse(MatrixT *mat);
+
+/// @func: matrixEqual
+/// >> Check if the two matrices are the same
+/// @param: {m1} the first matrix [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
+/// @return: the result [ bool ]
+extern bool matrixEqual(MatrixT *m1, MatrixT *m2);
 
 /// @func: matrixDrop
 /// >> destory a matrix
@@ -249,6 +263,13 @@ extern MatrixT *matrixScaleMul(complex float scale, MatrixT *mat);
 ///   * example, |a> = (1, 2)^T, <a| = (1, 2),
 ///   * <a|a> = 5 = norm(|a>)^2
 extern MatrixT *matrixMul(MatrixT *m1, MatrixT *m2);
+
+/// @func: matrixPower
+/// >> get the power of matrix
+/// @param: {pow} the power [ size_t ]
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the power of matrix [ MatrixT * ]
+extern MatrixT *matrixPower(size_t pow, MatrixT *mat);
 
 /// @func: matrixInnerProduct
 /// >> get the inner product of two matrices

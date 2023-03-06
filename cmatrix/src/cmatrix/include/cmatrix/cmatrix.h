@@ -107,11 +107,11 @@ extern void matrixToFile(const char *filePath, size_t matCnt,
 /// @return: the negate matrix [ MatrixT * ]
 extern MatrixT *matrixNegate(MatrixT *mat);
 
-/// @func: matrixTranspose
-/// >> transpose a matrix
+/// @func: matrixHermitianConjugate
+/// >> get the hermitian conjugate of the matrix
 /// @param: {mat} the matrix [ MatrixT * ]
-/// @return: the transposed matrix [ MatrixT * ]
-extern MatrixT *matrixTranspose(MatrixT *mat);
+/// @return: the hermitian conjugate of original matrix [ MatrixT * ]
+extern MatrixT *matrixHermitianConjugate(MatrixT *mat);
 
 /// @func: matrixDeterminant
 /// >> get the determinant of a matrix
@@ -158,12 +158,6 @@ extern MatrixT *matrixAdjugate(MatrixT *mat);
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the inverse matrix [ MatrixT * ]
 extern MatrixT *matrixInverse(MatrixT *mat);
-
-/// @func: matrixHermitianConjugate
-/// >> get the hermitian conjugate of the matrix
-/// @param: {mat} the matrix [ MatrixT * ]
-/// @return: the hermitian conjugate of original matrix [ MatrixT * ]
-extern MatrixT *matrixHermitianConjugate(MatrixT *mat);
 
 /// @func: matrixDrop
 /// >> destory a matrix

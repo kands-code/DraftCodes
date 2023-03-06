@@ -7,7 +7,7 @@
 int main() {
   MatrixT *m = matrixFromInput();
   complex float det = matrixDeterminant(m);
-  printf("%.3f + %.3fI\n", crealf(det), cimag(det));
+  printf("%.3f%+.3fI\n", crealf(det), cimag(det));
   matrixDrop(m);
 
   return 0;

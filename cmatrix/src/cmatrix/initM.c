@@ -88,6 +88,7 @@ MatrixT *matrixFromInput() {
       mat->data[i] = CMPLXF(real, imag);
     } else {
       fprintf(stderr, "Error: wrong sign (%c) for numeric!", sign);
+      exit(EXIT_FAILURE);
     }
     fflush(stdin);
   }

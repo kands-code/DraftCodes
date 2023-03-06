@@ -28,20 +28,21 @@ MatrixT *matrixNegate(MatrixT *mat) {
   return negMat;
 }
 
-/// @func: matrixTranspose
-/// >> transpose a matrix
+/// @func: matrixHermitianConjugate
+/// >> get the hermitian conjugate of the matrix
 /// @param: {mat} the matrix [ MatrixT * ]
-/// @return: the transposed matrix [ MatrixT * ]
-MatrixT *matrixTranspose(MatrixT *mat) {
+/// @return: the hermitian conjugate of original matrix [ MatrixT * ]
+MatrixT *matrixHermitianConjugate(MatrixT *mat) {
   IS_NULL(mat);
-
-  MatrixT *transMat = matrixZero(mat->size[1], mat->size[0]);
-  for (size_t i = 1; i <= transMat->size[0]; ++i) {
-    for (size_t j = 1; j <= transMat->size[1]; ++j) {
-      matrixSet(i, j, transMat, matrixGet(j, i, mat));
+  MatrixT *hermMat = matrixZero(mat->size[1], mat->size[0]);
+  for (size_t i = 1; i <= hermMat->size[0]; ++i) {
+    for (size_t j = 1; j <= hermMat->size[1]; ++j) {
+      complex float val = matrixGet(i, j, hermMat);
+      // conjugate
+      matrixSet(j, i, hermMat, CMPLXF(crealf(val), -cimagf(val)));
     }
   }
-  return transMat;
+  return hermMat;
 }
 
 /// @func: matrixDeterminant
@@ -163,7 +164,7 @@ MatrixT *matrixCofactorMatrix(MatrixT *mat) {
 /// @return: the adjugate matrix [ MatrixT * ]
 MatrixT *matrixAdjugate(MatrixT *mat) {
   MatrixT *coM = matrixCofactorMatrix(mat);
-  MatrixT *adjM = matrixTranspose(coM);
+  MatrixT *adjM = matrixHermitianConjugate(coM);
   matrixDrop(coM);
   return adjM;
 }
@@ -183,23 +184,6 @@ MatrixT *matrixInverse(MatrixT *mat) {
   MatrixT *invM = matrixScaleMul(CMPLXF(1.0f, 0.0f) / det, adjM);
   // matrixDrop(adjM);
   return invM;
-}
-
-/// @func: matrixHermitianConjugate
-/// >> get the hermitian conjugate of the matrix
-/// @param: {mat} the matrix [ MatrixT * ]
-/// @return: the hermitian conjugate of original matrix [ MatrixT * ]
-MatrixT *matrixHermitianConjugate(MatrixT *mat) {
-  IS_NULL(mat);
-  MatrixT *hermMat = matrixTranspose(mat);
-  for (size_t i = 1; i <= hermMat->size[0]; ++i) {
-    for (size_t j = 1; j <= hermMat->size[1]; ++j) {
-      complex float val = matrixGet(i, j, hermMat);
-      // conjugate
-      matrixSet(i, j, hermMat, CMPLXF(crealf(val), -cimagf(val)));
-    }
-  }
-  return hermMat;
 }
 
 /// @func: matrixDrop

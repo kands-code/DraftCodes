@@ -9,9 +9,8 @@ int main() {
   MatrixT **mats = matrixFromFile("./data/read.mdf", &mCnt);
   MatrixT *A = mats[0];
   MatrixT *B = mats[1];
-  MatrixT *m = matrixMul(A, B);
-  MatrixT *hM = matrixHermitianConjugate(m);
-  matrixPrint(hM);
+  MatrixT *mulM = matrixMul(A, B);
+  matrixPrint(mulM);
 
   return 0;
 }

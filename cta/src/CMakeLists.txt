@@ -8,6 +8,6 @@ project(cta C)
 
 add_subdirectory("cta")
 
-add_executable(cta-exe "main.c")
+add_executable("cta-exe" "main.c")
 
-target_link_libraries(cta-exe ${PROJECT_NAME})
+target_link_libraries("cta-exe" ${PROJECT_NAME})

@@ -252,6 +252,13 @@ extern complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2);
 /// @return: the product [ MatrixT * ]
 extern MatrixT *matrixScaleMul(complex float scale, MatrixT *mat);
 
+/// @func: matrixKroneckerProduct
+/// >> give the kronecker product of two matrices
+/// @param: {m1} the first matrix [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
+/// @return: the product [ MatrixT * ]
+extern MatrixT *matrixKroneckerProduct(MatrixT *m1, MatrixT *m2);
+
 /// @func: matrixMul
 /// >> multiply two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]

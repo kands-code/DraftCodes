@@ -146,6 +146,29 @@ MatrixT *matrixScaleMul(complex float scale, MatrixT *mat) {
   return prodM;
 }
 
+/// @func: matrixKroneckerProduct
+/// >> give the kronecker product of two matrices
+/// @param: {m1} the first matrix [ MatrixT * ]
+/// @param: {m2} the second matrix [ MatrixT * ]
+/// @return: the product [ MatrixT * ]
+MatrixT *matrixKroneckerProduct(MatrixT *m1, MatrixT *m2) {
+  IS_NULL(m1);
+  IS_NULL(m2);
+  MatrixT *kroM =
+      matrixZero(m1->size[0] * m2->size[0], m1->size[1] * m2->size[1]);
+  for (size_t i = 1; i <= m1->size[0]; ++i) {
+    for (size_t j = 1; j <= m1->size[1]; ++j) {
+      for (size_t x = 1; x <= m2->size[0]; ++x) {
+        for (size_t y = 1; y <= m2->size[1]; ++y) {
+          matrixSet((i - 1) * m2->size[0] + x, (j - 1) * m2->size[1] + y, kroM,
+                    matrixGet(i, j, m1) * matrixGet(x, y, m2));
+        }
+      }
+    }
+  }
+  return kroM;
+}
+
 /// @func: matrixMul
 /// >> multiply two matrices
 /// @param: {m1} the first matrix [ MatrixT * ]
@@ -164,15 +187,16 @@ MatrixT *matrixMul(MatrixT *m1, MatrixT *m2) {
     exit(EXIT_FAILURE);
   }
   MatrixT *prodM = matrixZero(m1->size[0], m2->size[1]);
-  for (size_t i = 1; i <= m1->size[0]; ++i) {
-    for (size_t j = 1; j <= m2->size[1]; ++j) {
-      MatrixT *row = matrixRow(i, m1);
-      MatrixT *col = matrixCol(j, m2);
-      complex float prodV = matrixCommonInnerProduct(row, col);
-      matrixSet(i, j, prodM, prodV);
-      matrixDrop(col);
-      matrixDrop(row);
-    }
+  for (size_t i = 1; i <= m1->size[1]; ++i) {
+    MatrixT *col = matrixCol(i, m1);
+    MatrixT *row = matrixRow(i, m2);
+    MatrixT *kroM = matrixKroneckerProduct(col, row);
+    MatrixT *newProdM = matrixAdd(kroM, prodM);
+    matrixDrop(prodM);
+    prodM = newProdM;
+    matrixDrop(kroM);
+    matrixDrop(row);
+    matrixDrop(col);
   }
   return prodM;
 }

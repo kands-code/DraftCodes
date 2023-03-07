@@ -8,6 +8,6 @@ project(cksl C)
 
 add_subdirectory("cksl")
 
-add_executable(ckslp "main.c")
+add_executable("ckslp" "main.c")
 
-target_link_libraries(ckslp ${PROJECT_NAME})
+target_link_libraries("ckslp" "${PROJECT_NAME}")

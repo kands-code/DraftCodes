@@ -2,8 +2,6 @@
 
 KSL is a new programming language designed by myself.
 
-> I will use _C_ to implement it.
-
 ## Basic Grammar
 
 The formal define of KSL (aka. EBNF) is not finished.

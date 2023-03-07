@@ -5,12 +5,12 @@
 #include <stdlib.h>
 
 int main() {
-  size_t mCnt = 0;
-  MatrixT **mats = matrixFromFile("./data/read.mdf", &mCnt);
-  MatrixT *A = mats[0];
-  MatrixT *B = mats[1];
-  MatrixT *mulM = matrixMul(A, B);
-  matrixPrint(mulM);
+  MatrixT *mat = matrixFromInput();
+  MatrixT **lu = matrixLUDecompose(mat);
+  matrixPrint(lu[0]);
+  matrixPrint(lu[1]);
+  matrixLUDrop(lu);
+  matrixDrop(mat);
 
   return 0;
 }

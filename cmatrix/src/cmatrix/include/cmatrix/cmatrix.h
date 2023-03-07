@@ -11,7 +11,7 @@
 
 // -- MACRO
 
-/// @macro: CMPLX
+/// @macro: CMPLXF
 /// @descript:
 ///   * a macro to generate complex float value
 ///   * copied from `complex.h` because I use clang :(
@@ -126,6 +126,12 @@ extern complex float matrixDeterminant(MatrixT *mat);
 /// @return: the rank of matrix [ size_t ]
 extern size_t matrixRank(MatrixT *mat);
 
+/// @func: matrixVectorNorm
+/// >> give the 2-norm of a vector
+/// @param: {vec} the vector [ MatrixT * ]
+/// @return: the norm [ float ]
+extern float matrixVectorNorm(MatrixT *vec);
+
 /// @func: matrixRow
 /// >> get the specific row of a matrix
 /// @param: {row} the row emit [ size_t ]
@@ -167,7 +173,7 @@ extern MatrixT *matrixAdjugate(MatrixT *mat);
 extern MatrixT *matrixInverse(MatrixT *mat);
 
 /// @func: matrixEqual
-/// >> Check if the two matrices are the same
+/// >> check if the two matrices are the same
 /// @param: {m1} the first matrix [ MatrixT * ]
 /// @param: {m2} the second matrix [ MatrixT * ]
 /// @return: the result [ bool ]
@@ -246,11 +252,11 @@ extern MatrixT *matrixSub(MatrixT *m1, MatrixT *m2);
 extern complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2);
 
 /// @func: matrixScaleMul
-/// >> multiply a scale and a matrix
-/// @param: {scale} the number [ complex float ]
+/// >> multiply a scalar and a matrix
+/// @param: {scalar} the number [ complex float ]
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the product [ MatrixT * ]
-extern MatrixT *matrixScaleMul(complex float scale, MatrixT *mat);
+extern MatrixT *matrixScalarMul(complex float scalar, MatrixT *mat);
 
 /// @func: matrixKroneckerProduct
 /// >> give the kronecker product of two matrices
@@ -287,7 +293,15 @@ extern MatrixT *matrixPower(size_t pow, MatrixT *mat);
 ///   * the size of the two matrices must be matched
 extern MatrixT *matrixInnerProduct(MatrixT *m1, MatrixT *m2);
 
-/// matrix decompose
+/// matrix types
+
+/// @func: matrixIsSymmetricMatrix
+/// >> check if the matrix is symmetric
+/// @param: {mat} the matrix [ MatrixT * ]
+/// @return: the result [ bool ]
+extern bool matrixIsSymmetricMatrix(MatrixT *mat);
+
+/// matrix application
 
 /// @func: matrixLUDecompose
 /// >> decompose a matrix into LU
@@ -302,5 +316,12 @@ extern MatrixT **matrixLUDecompose(MatrixT *mat);
 /// @return: the result of decompose [ MatrixT ** ]
 /// @descript: the result is L^{-1} D U, not L D U
 extern MatrixT **matrixLDUDecompose(MatrixT *mat);
+
+/// @func: matrixSolveLinearEquations
+/// >> solve the basic linear equations
+/// @param: {A} the coefficient matrix [ MatrixT * ]
+/// @param: {b} the value matrix [ MatrixT * ]
+/// @return: the solution of the linear equations [ MatrixT * ]
+extern MatrixT *matrixSolveLinearEquations(MatrixT *A, MatrixT *b);
 
 #endif

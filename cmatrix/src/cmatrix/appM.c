@@ -23,18 +23,15 @@
 /// @descript: the result is L^{-1} U, not L U
 MatrixT **matrixLUDecompose(MatrixT *mat) {
   IS_NULL(mat);
-  if (mat->size[0] != mat->size[1]) {
-    fputs("Error: non-square matrix can not do decompose!\n", stderr);
-    exit(EXIT_FAILURE);
-  }
 
   MatrixT **lu = calloc(2, sizeof(MatrixT *));
-  MatrixT *transM = matrixIdentity(mat->size[0], mat->size[1]);
+  MatrixT *transM = matrixIdentity(mat->size[0], mat->size[0]);
   MatrixT *copyM = matrixCopy(mat);
-  for (size_t i = 1, indent = 0; i < copyM->size[0]; ++i) {
+  for (size_t i = 1, indent = 0;
+       i < copyM->size[0] && i + indent <= copyM->size[1]; ++i) {
     // check pivot
-  CHECK:
-    if (isZero(matrixGet(i, i + indent, copyM))) {
+    while (i + indent <= copyM->size[1] &&
+           isZero(matrixGet(i, i + indent, copyM))) {
       size_t targetRow = i + 1;
       // find the non-zero row
       for (size_t row = targetRow; row <= copyM->size[0]; ++row) {
@@ -44,11 +41,10 @@ MatrixT **matrixLUDecompose(MatrixT *mat) {
         } else if (row == copyM->size[0]) {
           fputs("Warn: this is a strange matrix\n", stderr);
           indent++;
-          goto CHECK;
         }
       }
       // create the exchange matrix
-      MatrixT *exchangeRow = matrixIdentity(mat->size[0], mat->size[1]);
+      MatrixT *exchangeRow = matrixIdentity(mat->size[0], mat->size[0]);
       matrixSet(i, i, exchangeRow, CMPLXF(0.0f, 0.0f));
       matrixSet(i, targetRow, exchangeRow, CMPLXF(1.0f, 0.0f));
       matrixSet(targetRow, targetRow, exchangeRow, CMPLXF(0.0f, 0.0f));
@@ -63,7 +59,7 @@ MatrixT **matrixLUDecompose(MatrixT *mat) {
       matrixDrop(exchangeRow);
     }
     // do elimilation
-    MatrixT *elimM = matrixIdentity(mat->size[0], mat->size[1]);
+    MatrixT *elimM = matrixIdentity(mat->size[0], mat->size[0]);
     for (size_t row = i + 1; row <= copyM->size[0]; ++row) {
       complex float divisor =
           -matrixGet(row, i + indent, copyM) / matrixGet(i, i + indent, copyM);
@@ -94,7 +90,7 @@ MatrixT **matrixLDUDecompose(MatrixT *mat) {
   MatrixT **lu = matrixLUDecompose(mat);
   MatrixT **ldu = calloc(3, sizeof(MatrixT *));
   ldu[0] = matrixCopy(lu[0]);
-  MatrixT *diagM = matrixIdentity(mat->size[0], mat->size[1]);
+  MatrixT *diagM = matrixIdentity(mat->size[0], mat->size[0]);
   for (size_t i = 1; i <= mat->size[0]; ++i) {
     complex float val = matrixGet(i, i, lu[1]);
     if (isZero(val)) {
@@ -104,12 +100,10 @@ MatrixT **matrixLDUDecompose(MatrixT *mat) {
     matrixSet(i, i, diagM, val);
   }
   ldu[1] = diagM;
-  MatrixT *toOneM = matrixIdentity(mat->size[0], mat->size[1]);
+  MatrixT *toOneM = matrixIdentity(mat->size[0], mat->size[0]);
   for (size_t i = 1; i <= mat->size[0]; ++i) {
     complex float val = matrixGet(i, i, lu[1]);
-    if (!isZero(val)) {
-      matrixSet(i, i, toOneM, 1 / val);
-    }
+    matrixSet(i, i, toOneM, 1 / val);
   }
   MatrixT *uM = matrixMul(toOneM, lu[1]);
   ldu[2] = uM;
@@ -118,4 +112,31 @@ MatrixT **matrixLDUDecompose(MatrixT *mat) {
   matrixLUDrop(lu);
 
   return ldu;
+}
+
+/// @func: matrixSolveLinearEquations
+/// >> solve the basic linear equations
+/// @param: {A} the coefficient matrix [ MatrixT * ]
+/// @param: {b} the value matrix [ MatrixT * ]
+/// @return: the solution of the linear equations [ MatrixT * ]
+MatrixT *matrixSolveLinearEquations(MatrixT *A, MatrixT *b) {
+  IS_NULL(A);
+  IS_NULL(b);
+
+  if (A->size[0] != A->size[1]) {
+    fputs("Error: can only solve basic linear equations!\n", stderr);
+    exit(EXIT_FAILURE);
+  } else if (A->size[0] != b->size[0]) {
+    fprintf(stderr,
+            "Error: the number of equations %zu can not match the number of "
+            "values %zu!\n",
+            A->size[0], b->size[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  MatrixT *invA = matrixInverse(A);
+  MatrixT *solM = matrixMul(invA, b);
+  matrixDrop(invA);
+
+  return solM;
 }

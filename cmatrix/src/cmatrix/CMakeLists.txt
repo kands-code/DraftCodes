@@ -2,7 +2,8 @@ add_library("${PROJECT_NAME}" STATIC
     "initM.c"
     "attrM.c"
     "manM.c"
-    "decpM.c"
+    "typeM.c"
+    "appM.c"
     "utils.c"
 )
 

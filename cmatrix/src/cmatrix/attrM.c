@@ -5,6 +5,7 @@
 
 #include "cmatrix/cmatrix.h"
 #include "cmatrix/utils.h"
+
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
@@ -38,9 +39,8 @@ MatrixT *matrixHermitianConjugate(MatrixT *mat) {
   MatrixT *hermMat = matrixZero(mat->size[1], mat->size[0]);
   for (size_t i = 1; i <= mat->size[0]; ++i) {
     for (size_t j = 1; j <= mat->size[1]; ++j) {
-      complex float val = matrixGet(i, j, mat);
       // conjugate
-      matrixSet(j, i, hermMat, CMPLXF(crealf(val), -cimagf(val)));
+      matrixSet(j, i, hermMat, conjf(matrixGet(i, j, mat)));
     }
   }
   return hermMat;
@@ -88,8 +88,27 @@ size_t matrixRank(MatrixT *mat) {
       break;
     }
   }
-RANK:
   return rank;
+}
+
+/// @func: matrixVectorNorm
+/// >> give the 2-norm of a vector
+/// @param: {vec} the vector [ MatrixT * ]
+/// @return: the norm [ float ]
+float matrixVectorNorm(MatrixT *vec) {
+  IS_NULL(vec);
+  // check if the vec is a vector
+  if (1 != vec->size[0] && 1 != vec->size[1]) {
+    fputs("Error: cannot compute norm of a matrix!\n", stderr);
+    exit(EXIT_FAILURE);
+  }
+
+  float sum = 0.0f;
+  for (size_t i = 0; i < vec->size[0] * vec->size[1]; ++i) {
+    sum += crealf(vec->data[i] * conjf(vec->data[i]));
+  }
+
+  return sqrtf(sum);
 }
 
 /// @func: matrixRow
@@ -209,7 +228,7 @@ MatrixT *matrixInverse(MatrixT *mat) {
     exit(EXIT_FAILURE);
   }
   MatrixT *adjM = matrixAdjugate(mat);
-  MatrixT *invM = matrixScaleMul(CMPLXF(1.0f, 0.0f) / det, adjM);
+  MatrixT *invM = matrixScalarMul(CMPLXF(1.0f, 0.0f) / det, adjM);
   // matrixDrop(adjM);
   return invM;
 }

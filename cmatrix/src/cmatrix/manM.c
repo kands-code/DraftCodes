@@ -133,15 +133,15 @@ complex float matrixCommonInnerProduct(MatrixT *v1, MatrixT *v2) {
   return res;
 }
 
-/// @func: matrixScaleMul
-/// >> multiply a scale and a matrix
-/// @param: {scale} the number [ complex float ]
+/// @func: matrixScalarMul
+/// >> multiply a scalar and a matrix
+/// @param: {scalar} the number [ complex float ]
 /// @param: {mat} the matrix [ MatrixT * ]
 /// @return: the product [ MatrixT * ]
-MatrixT *matrixScaleMul(complex float scale, MatrixT *mat) {
+MatrixT *matrixScalarMul(complex float scalar, MatrixT *mat) {
   MatrixT *prodM = matrixZero(mat->size[0], mat->size[1]);
   for (size_t i = 0; i < mat->size[0] * mat->size[1]; ++i) {
-    prodM->data[i] = mat->data[i] * scale;
+    prodM->data[i] = mat->data[i] * scalar;
   }
   return prodM;
 }
